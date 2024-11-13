@@ -1,5 +1,5 @@
 'use client';
-
+import './globals.css'
 import { useState } from 'react';
 import {
   Dialog,
@@ -12,8 +12,16 @@ import {
   PopoverGroup,
   PopoverPanel,
 } from '@headlessui/react';
-
-
+import {
+  ArrowPathIcon,
+  Bars3Icon,
+  ChartPieIcon,
+  CursorArrowRaysIcon,
+  FingerPrintIcon,
+  SquaresPlusIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
+import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid';
 
 const products = [
   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
@@ -45,9 +53,57 @@ export default function RootLayout({ children }) {
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
                 className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-              >
-                <Bars3Icon aria-hidden="true" className="h-6 w-6" />
-              </button>
+              >// src/app/company/[id]/page.jsx
+
+              // export const dynamic = 'force-dynamic'; // Отключаем кеширование страницы
+              
+              export default async function CompanyPage({ params: promiseParams }) {
+                const params = await promiseParams; // Дожидаемся параметров
+                const { id } = params;
+              
+                // Выполняем серверный запрос к FastAPI
+                const response = await fetch(`http://localhost:8001/api/companies/${id}`, {
+                  method: 'GET',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  cache: 'no-store', // Отключаем кеширование
+                });
+              
+                if (!response.ok) {
+                  throw new Error('Ошибка при получении данных компании');
+                }
+              
+                const companyData = await response.json();
+              
+                return (
+                  <div className="container mx-auto py-8">
+                    <h1 className="text-2xl font-bold">{companyData.name}</h1>
+                    <p>{companyData.description}</p>
+              
+                    <h2 className="text-xl font-semibold mt-6">Услуги</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {companyData.services?.map((service) => (
+                        <div key={service.id} className="p-4 border rounded">
+                          <h3 className="font-bold">{service.name}</h3>
+                          <p>{service.description}</p>
+                        </div>
+                      ))}
+                    </div>
+              
+                    <h2 className="text-xl font-semibold mt-6">Продукция</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {companyData.products?.map((product) => (
+                        <div key={product.id} className="p-4 border rounded">
+                          <h3 className="font-bold">{product.name}</h3>
+                          <p>{product.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              
             </div>
             <PopoverGroup className="hidden lg:flex lg:gap-x-12">
               <Popover className="relative">
