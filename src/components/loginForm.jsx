@@ -1,9 +1,9 @@
-// components/loginForm.js
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AuthService from '@/services/auth.service';
 
 const LoginForm = () => {
   const router = useRouter();
@@ -13,28 +13,23 @@ const LoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await fetch("http://localhost:8001/api/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          username: email,
-          password: password,
-        }),
-      });
+    const payload = new URLSearchParams();
+    payload.append("username", email); // Используем "username" для API
+    payload.append("password", password);
 
-      if (response.ok) {
+    try {
+      const response = await AuthService.login(payload); // Используем функцию login
+
+      if (response.status === 200 || response.status === 201) {
         toast.success("Вы успешно вошли!", {
           position: "top-right",
           autoClose: 3000,
         });
-        router.push("/dashboard");
+        const data = response.data;
+        console.log("Ответ от сервера:", data);
+        router.push("/dashboard"); // Перенаправляем на /dashboard
       } else {
-        const errorData = await response.json();
-        toast.error(`Ошибка входа: ${errorData.detail}`, {
+        toast.error(`Ошибка входа: ${response.data.detail || "Неверные данные"}`, {
           position: "top-right",
           autoClose: 5000,
         });

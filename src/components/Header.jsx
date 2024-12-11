@@ -1,7 +1,7 @@
 // components/Header.js
 "use client";
 import { useContext, useState } from "react";
-import { AuthContext } from "../contexts/AuthContext";
+import { AuthContext } from "../contexts/AuthProvider";
 import {
   Dialog,
   DialogPanel,

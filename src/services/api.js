@@ -1,55 +1,72 @@
-// utils/api.js
+import axios from "axios";
+import TokenService from "./token.service"; // Assuming TokenService is adapted for SSR
+import AuthService from "./auth.service";
 
-import axios from 'axios';
-
-// Создаем экземпляр Axios
-const api = axios.create({
-  baseURL: 'http://127.0.0.1:8001', // Замените на URL вашего бэкэнда
+const instance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Интерсептор для добавления токена в заголовки запросов
-api.interceptors.request.use(
+// Interceptor for requests
+instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+    if (typeof window !== 'undefined') {
+      const token = TokenService.getLocalAccessToken();
+      if (token) {
+        config.headers["Authorization"] = 'Bearer ' + token;
+      }
     }
     return config;
   },
-  (error) => Promise.reject(error)
-);
-
-// Интерсептор для обработки ошибок и обновления токена
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // Проверяем, не была ли попытка повторить запрос
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        const response = await api.post('/refresh', {
-          refresh_token: refreshToken,
-        });
-        const { access_token } = response.data;
-        localStorage.setItem('access_token', access_token);
-        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        // Если обновление токена не удалось, перенаправляем на страницу логина
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
+  (error) => {
     return Promise.reject(error);
   }
 );
 
-export default api;
+// Interceptor for responses
+instance.interceptors.response.use(
+  (res) => {
+    return res;
+  },
+  async (err) => {
+    const originalConfig = err.config;
+
+    if (err.response) {
+      console.log(err.response);
+
+      // Handling 401 Unauthorized errors
+      if (err.response.status === 401 && !originalConfig._retry) {
+        originalConfig._retry = true;
+        try {
+          const rs = await AuthService.refreshToken();
+          const accessToken = rs.access_token;
+          
+          if (typeof window !== 'undefined') {
+            TokenService.updateLocalAccessToken(accessToken);
+          }
+
+          instance.defaults.headers.common["Authorization"] = 'Bearer ' + accessToken;
+          return instance(originalConfig);
+        } catch (_error) {
+          console.log("Error refreshing token. Please log in again.");
+          // You can redirect to the login page or return a custom error message here
+          return Promise.reject(_error);
+        }
+      }
+
+      // Handle 403 Forbidden errors
+      if (err.response.status === 403) {
+        console.error("You do not have permission to perform this action.");
+        return Promise.reject(err.response.data);
+      }
+    } else {
+      // Generic error handling
+      console.error("An unexpected error occurred.");
+    }
+
+    return Promise.reject(err);
+  }
+);
+
+export default instance;

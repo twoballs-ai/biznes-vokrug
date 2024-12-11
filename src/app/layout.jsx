@@ -1,5 +1,5 @@
 "use client";
-import { AuthProvider } from "../contexts/AuthContext";
+import { AuthProvider } from "../contexts/AuthProvider";
 import "./globals.css";
 import { useState } from "react";
 import Header from "@/components/Header";
