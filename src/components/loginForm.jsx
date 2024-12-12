@@ -1,39 +1,27 @@
-"use client";
+'use client';
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AuthService from '@/services/auth.service';
+import { useAuth } from '@/contexts/AuthProvider';
 
 const LoginForm = () => {
-  const router = useRouter();
+  const { login } = useAuth(); // Используем метод из контекста
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = new URLSearchParams();
-    payload.append("username", email); // Используем "username" для API
+    payload.append("username", email);
     payload.append("password", password);
 
     try {
-      const response = await AuthService.login(payload); // Используем функцию login
-
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Вы успешно вошли!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        const data = response.data;
-        console.log("Ответ от сервера:", data);
-        router.push("/dashboard"); // Перенаправляем на /dashboard
-      } else {
-        toast.error(`Ошибка входа: ${response.data.detail || "Неверные данные"}`, {
-          position: "top-right",
-          autoClose: 5000,
-        });
-      }
+      await login(payload); // Вызов метода из контекста
+      toast.success("Вы успешно вошли!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     } catch (error) {
       console.error("Ошибка при входе:", error);
       toast.error("Произошла ошибка. Пожалуйста, попробуйте снова.", {
@@ -47,7 +35,7 @@ const LoginForm = () => {
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       <ToastContainer />
       <h1 className="text-2xl font-bold text-center mb-6">Вход</h1>
-      <form onSubmit={handleLogin} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
             Электронная почта

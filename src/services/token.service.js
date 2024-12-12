@@ -15,12 +15,16 @@ const getLocalRefreshToken = () => {
   const updateLocalAccessToken = (token) => {
     localStorage.setItem("access_token", JSON.stringify(token));
   };
-  
+  const removeTokens = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+  };
   const TokenService = {
     getLocalRefreshToken,
     getLocalAccessToken,
     updateLocalRefreshToken,
     updateLocalAccessToken,
+    removeTokens,
   };
   
   export default TokenService;

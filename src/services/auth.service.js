@@ -15,7 +15,7 @@ const Register = async (data) => {
 }
 
 const login = async (payload) => {
-  const response = await api.post(apiUrl + "login/", payload, {
+  const response = await api.post(apiUrl + "login", payload, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
