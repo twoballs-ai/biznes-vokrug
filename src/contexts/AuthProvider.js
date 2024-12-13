@@ -6,30 +6,39 @@ import { useRouter } from 'next/navigation';
 
 export const AuthContext = createContext();
 
+function getInitialUserState() {
+  if (typeof window !== 'undefined') {
+    const userData = localStorage.getItem("user_data");
+    return userData ? JSON.parse(userData) : null;
+  }
+  return null;
+}
+
 export const AuthProvider = ({ children }) => {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => getInitialUserState());
+  const [authenticated, setAuthenticated] = useState(() => !!user);
   const router = useRouter();
 
   useEffect(() => {
     const token = TokenService.getLocalAccessToken();
-    if (token) {
-      const userData = JSON.parse(localStorage.getItem("user_data")); // Храним данные пользователя локально
+    if (token && !user) {
+      // Если токен есть, но user не установлен (в случае, если localStorage не был доступен?)
+      const userData = JSON.parse(localStorage.getItem("user_data"));
       if (userData) {
         setUser(userData);
         setAuthenticated(true);
       }
     }
-  }, []);
+  }, [user]);
 
   const login = async (payload) => {
     try {
       const response = await AuthService.login(payload);
-      const { access_token, refresh_token, user} = response.data;
+      const { access_token, refresh_token, user } = response.data;
 
       TokenService.updateLocalAccessToken(access_token);
       TokenService.updateLocalRefreshToken(refresh_token);
-      localStorage.setItem("user_data", JSON.stringify(user)); // Сохраняем объект user
+      localStorage.setItem("user_data", JSON.stringify(user));
       setUser(user);
       setAuthenticated(true);
 
