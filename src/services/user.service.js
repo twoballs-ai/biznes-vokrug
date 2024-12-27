@@ -52,6 +52,40 @@ const getIndividualEntrepreneurById = async (id) => {
     return await api.get(apiUrl + `individual-entrepreneurs/${id}`);
 };
 
+// Сервисы для услуг
+const createService = async (data) => {
+    return await api.post(apiUrl + "services/", data);
+};
+
+const getServiceById = async (id) => {
+    return await api.get(apiUrl + `services/${id}`);
+};
+
+const updateService = async (id, data) => {
+    return await api.put(apiUrl + `services/${id}`, data);
+};
+
+const deleteService = async (id) => {
+    return await api.delete(apiUrl + `services/${id}`);
+};
+
+// Сервисы для продуктов
+const createProduct = async (data) => {
+    return await api.post(apiUrl + "products/", data);
+};
+
+const getProductById = async (id) => {
+    return await api.get(apiUrl + `products/${id}`);
+};
+
+const updateProduct = async (id, data) => {
+    return await api.put(apiUrl + `products/${id}`, data);
+};
+
+const deleteProduct = async (id) => {
+    return await api.delete(apiUrl + `products/${id}`);
+};
+
 // Экспорт всех методов
 const UserService = {
     getUserDetails,
@@ -66,6 +100,14 @@ const UserService = {
     updateIndividualEntrepreneur,
     deleteIndividualEntrepreneur,
     getIndividualEntrepreneurById,
+    createService,
+    getServiceById,
+    updateService,
+    deleteService,
+    createProduct,
+    getProductById,
+    updateProduct,
+    deleteProduct,
 };
 
 export default UserService;
