@@ -1,61 +1,14 @@
-"use client";
+
 import { AuthProvider } from "../contexts/AuthProvider";
 import "./globals.css";
-import { useState } from "react";
 import Header from "@/components/Header";
-import {
-  Dialog,
-  DialogPanel,
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Popover,
-  PopoverButton,
-  PopoverGroup,
-  PopoverPanel,
-} from "@headlessui/react";
-import {
-  ArrowPathIcon,
-  Bars3Icon,
-  ChartPieIcon,
-  CursorArrowRaysIcon,
-  FingerPrintIcon,
-  SquaresPlusIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
-  ChevronDownIcon,
-  PhoneIcon,
-  PlayCircleIcon,
-} from "@heroicons/react/20/solid";
-
-const products = [
-  {
-    name: "Analytics",
-    description: "Get a better understanding of your traffic",
-    href: "#",
-    icon: ChartPieIcon,
-  },
-  {
-    name: "Engagement",
-    description: "Speak directly to your customers",
-    href: "#",
-    icon: CursorArrowRaysIcon,
-  },
-];
-const callsToAction = [
-  { name: "Watch demo", href: "#", icon: PlayCircleIcon },
-  { name: "Contact sales", href: "#", icon: PhoneIcon },
-];
 
 export default function RootLayout({ children }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <AuthProvider>
       <html lang="ru">
         <body className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
-        <Header />
+          <Header />
           <main className="container mx-auto py-8 flex-1">{children}</main>
           <footer className="bg-blue-600 text-white py-8 mt-auto">
             <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
