@@ -33,7 +33,7 @@ const getOrganizationsByUser = async () => {
 
 // Сервисы для индивидуальных предпринимателей
 const getIndividualEntrepreneursByUser = async () => {
-    return await api.get(apiUrl + "individual-entrepreneurs/me");
+    return await api.get(apiUrl + "individual-entrepreneur/me");
 };
 
 const createIndividualEntrepreneur = async (data) => {

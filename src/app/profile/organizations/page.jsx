@@ -19,18 +19,38 @@ export default function OrganizationsPage() {
     city: "",
   });
 
+  const [loading, setLoading] = useState(true); // Добавим индикатор загрузки
+  const [message, setMessage] = useState(""); // Для сообщения об ошибке или пустом списке
+
+  const fetchOrganizationsByUser = async () => {
+    setLoading(true); // Начинаем загрузку
+    try {
+      const response = await UserService.getOrganizationsByUser();
+      if (response.data.status) {
+        // Если есть организации
+        setOrganizations(response.data.data);
+        setMessage(""); // Очищаем сообщение
+      } else {
+        // Если организаций нет
+        setOrganizations([]);
+        setMessage(response.data.message || "Организации не найдены.");
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке организаций:", error);
+      setMessage("Произошла ошибка при загрузке данных.");
+    } finally {
+      setLoading(false); // Завершаем загрузку
+    }
+  };
+
   useEffect(() => {
     fetchOrganizationsByUser();
   }, []);
 
-  const fetchOrganizationsByUser = async () => {
-    try {
-      const response = await UserService.getOrganizationsByUser();
-      setOrganizations(response.data.data); // Ожидается, что организации будут в `data.data`
-    } catch (error) {
-      console.error("Ошибка при загрузке организаций:", error);
-    }
-  };
+  if (loading) {
+    return <div>Загрузка...</div>; // Индикатор загрузки
+  }
+
 
   const handleCreateOrUpdate = async () => {
     try {
