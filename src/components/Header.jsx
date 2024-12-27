@@ -219,47 +219,4 @@ const Header = () => {
 
 export default Header;
 
-              <>
-                <Link
-                  href="/profile"
-                  className="block py-2 text-base font-semibold text-gray-900 hover:bg-gray-50"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Профиль
-                </Link>
-                <button
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left py-2 text-base font-semibold text-gray-900 hover:bg-gray-50"
-                >
-                  Выйти
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="block py-2 text-base font-semibold text-gray-900 hover:bg-gray-50"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Вход
-                </Link>
-                <Link
-                  href="/register"
-                  className="block py-2 text-base font-semibold text-blue-600 hover:bg-blue-100"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Регистрация
-                </Link>
-              </>
-            )}
-          </div>
-        </DialogPanel>
-      </Dialog>
-    </header>
-  );
-};
-
-export default Header;
+            
