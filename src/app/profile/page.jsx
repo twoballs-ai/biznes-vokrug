@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import UserService from "../../services/user.service";
-import ModalWrapper from "../../components/ModalWrapper"; // Импорт переиспользуемого компонента модального окна
+import ModalWrapper from "../../components/CustomModal"; // Импорт переиспользуемого компонента модального окна
 import { toast, ToastContainer } from "react-toastify"; // Импорт Toastify
 import "react-toastify/dist/ReactToastify.css"; // Импорт стилей Toastify
 export default function ProfilePage() {

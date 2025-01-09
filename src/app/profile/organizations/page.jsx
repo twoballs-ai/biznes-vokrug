@@ -1,37 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import UserService from "../../../services/user.service";
+import CustomModal from "../../../components/CustomModal";
 
 export default function OrganizationsPage() {
   const [organizations, setOrganizations] = useState([]);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [orgData, setOrgData] = useState({
-    name: "",
-    description: "",
-    ogrn: "",
-    inn: "",
-    phone: "",
-    email: "",
-    address: "",
-    city: "",
-  });
-
-  const [loading, setLoading] = useState(true); // Добавим индикатор загрузки
-  const [message, setMessage] = useState(""); // Для сообщения об ошибке или пустом списке
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
 
   const fetchOrganizationsByUser = async () => {
-    setLoading(true); // Начинаем загрузку
+    setLoading(true);
     try {
       const response = await UserService.getOrganizationsByUser();
       if (response.data.status) {
-        // Если есть организации
         setOrganizations(response.data.data);
-        setMessage(""); // Очищаем сообщение
+        setMessage("");
       } else {
-        // Если организаций нет
         setOrganizations([]);
         setMessage(response.data.message || "Организации не найдены.");
       }
@@ -39,7 +29,7 @@ export default function OrganizationsPage() {
       console.error("Ошибка при загрузке организаций:", error);
       setMessage("Произошла ошибка при загрузке данных.");
     } finally {
-      setLoading(false); // Завершаем загрузку
+      setLoading(false);
     }
   };
 
@@ -47,26 +37,49 @@ export default function OrganizationsPage() {
     fetchOrganizationsByUser();
   }, []);
 
-  if (loading) {
-    return <div>Загрузка...</div>; // Индикатор загрузки
-  }
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Название обязательно"),
+    address: Yup.string().required("Адрес обязателен"),
+    inn: Yup.string()
+      .required("ИНН обязателен")
+      .matches(/^\d{10}$/, "ИНН должен содержать 10 цифр"),
+    ogrn: Yup.string()
+      .required("ОГРН обязателен")
+      .matches(/^\d{13}$/, "ОГРН должен содержать 13 цифр"),
+    phone: Yup.string().required("Телефон обязателен"),
+    email: Yup.string().email("Некорректный email"),
+    website: Yup.string().url("Некорректный URL"),
+  });
 
-
-  const handleCreateOrUpdate = async () => {
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       if (isEditMode) {
-        await UserService.updateOrganization(selectedOrg.id, orgData);
+        await UserService.updateOrganization(selectedOrg.id, values);
         alert("Организация успешно обновлена");
       } else {
-        await UserService.createOrganization(orgData);
+        await UserService.createOrganization(values);
         alert("Организация успешно создана");
       }
       setIsModalOpen(false);
-      setOrgData({});
       fetchOrganizationsByUser();
+      resetForm();
     } catch (error) {
       console.error("Ошибка при сохранении организации:", error);
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleEdit = (org) => {
+    setSelectedOrg(org);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedOrg(null);
+    setIsEditMode(false);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -81,23 +94,9 @@ export default function OrganizationsPage() {
     }
   };
 
-  const handleEdit = (org) => {
-    setSelectedOrg(org);
-    setOrgData(org);
-    setIsEditMode(true);
-    setIsModalOpen(true);
-  };
-
-  const handleCreate = () => {
-    setSelectedOrg(null);
-    setOrgData({});
-    setIsEditMode(false);
-    setIsModalOpen(true);
-  };
-
-  const handleView = (org) => {
-    setSelectedOrg(org);
-  };
+  if (loading) {
+    return <div>Загрузка...</div>;
+  }
 
   return (
     <div>
@@ -110,12 +109,6 @@ export default function OrganizationsPage() {
             <h2 className="text-xl font-bold">{org.name}</h2>
             <p>{org.description || "Описание отсутствует"}</p>
             <div className="flex space-x-4 mt-2">
-              <button
-                onClick={() => handleView(org)}
-                className="bg-blue-500 text-white py-1 px-4 rounded"
-              >
-                Просмотр
-              </button>
               <button
                 onClick={() => handleEdit(org)}
                 className="bg-yellow-500 text-white py-1 px-4 rounded"
@@ -142,89 +135,77 @@ export default function OrganizationsPage() {
         Добавить организацию
       </button>
 
-      {/* Детали выбранной организации */}
-      {selectedOrg && (
-        <div className="border mt-6 p-4 rounded bg-gray-100">
-          <h2 className="text-xl font-bold mb-2">Детали организации</h2>
-          <p>
-            <strong>Название:</strong> {selectedOrg.name}
-          </p>
-          <p>
-            <strong>ОГРН:</strong> {selectedOrg.ogrn}
-          </p>
-          <p>
-            <strong>ИНН:</strong> {selectedOrg.inn}
-          </p>
-          <p>
-            <strong>Адрес:</strong> {selectedOrg.address || "Не указан"}
-          </p>
-          <p>
-            <strong>Email:</strong> {selectedOrg.email || "Не указан"}
-          </p>
-        </div>
-      )}
-
       {/* Модальное окно для создания/редактирования */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">
-              {isEditMode ? "Редактировать организацию" : "Создать организацию"}
-            </h2>
-            <input
-              type="text"
-              placeholder="Название"
-              value={orgData.name || ""}
-              onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="ОГРН"
-              value={orgData.ogrn || ""}
-              onChange={(e) => setOrgData({ ...orgData, ogrn: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="ИНН"
-              value={orgData.inn || ""}
-              onChange={(e) => setOrgData({ ...orgData, inn: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Email"
-              value={orgData.email || ""}
-              onChange={(e) => setOrgData({ ...orgData, email: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Адрес"
-              value={orgData.address || ""}
-              onChange={(e) =>
-                setOrgData({ ...orgData, address: e.target.value })
-              }
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-500 text-white py-2 px-4 rounded"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={handleCreateOrUpdate}
-                className="bg-green-500 text-white py-2 px-4 rounded"
-              >
-                Сохранить
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CustomModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={isEditMode ? "Редактировать организацию" : "Создать организацию"}
+      >
+        <Formik
+          initialValues={{
+            name: selectedOrg?.name || "",
+            description: selectedOrg?.description || "",
+            address: selectedOrg?.address || "",
+            inn: selectedOrg?.inn || "",
+            ogrn: selectedOrg?.ogrn || "",
+            phone: selectedOrg?.phone || "",
+            website: selectedOrg?.website || "",
+            email: selectedOrg?.email || "",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              {[
+                { name: "name", placeholder: "Название", type: "text", required: true },
+                { name: "description", placeholder: "Описание", type: "text", required: false },
+                { name: "address", placeholder: "Адрес", type: "text", required: true },
+                { name: "inn", placeholder: "ИНН", type: "text", required: true },
+                { name: "ogrn", placeholder: "ОГРН", type: "text", required: true },
+                { name: "phone", placeholder: "Телефон", type: "text", required: true },
+                { name: "website", placeholder: "Веб-сайт", type: "text", required: false },
+                { name: "email", placeholder: "Email", type: "email", required: false },
+              ].map((field) => (
+                <div key={field.name} className="mb-3">
+                  <label className="block mb-1 font-medium">
+                    {field.placeholder}{" "}
+                    {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  <Field
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    className="w-full p-2 border rounded"
+                  />
+                  <ErrorMessage
+                    name={field.name}
+                    component="p"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+              ))}
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="bg-gray-500 text-white py-2 px-4 rounded"
+                >
+                  Отмена
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-green-500 text-white py-2 px-4 rounded"
+                >
+                  {isSubmitting ? "Сохранение..." : "Сохранить"}
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </CustomModal>
     </div>
   );
 }

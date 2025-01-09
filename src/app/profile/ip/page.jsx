@@ -1,22 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import UserService from "../../../services/user.service";
+import CustomModal from "../../../components/CustomModal";
 
 export default function EntrepreneursPage() {
   const [entrepreneurs, setEntrepreneurs] = useState([]);
   const [selectedEntrepreneur, setSelectedEntrepreneur] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [entrepreneurData, setEntrepreneurData] = useState({
-    name: "",
-    ogrnip: "",
-    inn: "",
-    phone: "",
-    email: "",
-    address: "",
-  });
-
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -43,25 +37,51 @@ export default function EntrepreneursPage() {
     fetchEntrepreneursByUser();
   }, []);
 
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Название обязательно"),
+    ogrnip: Yup.string()
+      .required("ОГРНИП обязателен")
+      .matches(/^\d{15}$/, "ОГРНИП должен содержать 15 цифр"),
+    inn: Yup.string()
+      .required("ИНН обязателен")
+      .matches(/^\d{12}$/, "ИНН должен содержать 12 цифр"),
+    phone: Yup.string().required("Телефон обязателен"),
+    email: Yup.string().email("Некорректный email"),
+    address: Yup.string().required("Адрес обязателен"),
+  });
 
-  const handleCreateOrUpdate = async () => {
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       if (isEditMode) {
-        await UserService.updateIndividualEntrepreneur(selectedEntrepreneur.id, entrepreneurData);
+        await UserService.updateIndividualEntrepreneur(
+          selectedEntrepreneur.id,
+          values
+        );
         alert("ИП успешно обновлен");
       } else {
-        await UserService.createIndividualEntrepreneur(entrepreneurData);
+        await UserService.createIndividualEntrepreneur(values);
         alert("ИП успешно создан");
       }
       setIsModalOpen(false);
-      setEntrepreneurData({});
       fetchEntrepreneursByUser();
+      resetForm();
     } catch (error) {
       console.error("Ошибка при сохранении ИП:", error);
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleEdit = (entrepreneur) => {
+    setSelectedEntrepreneur(entrepreneur);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedEntrepreneur(null);
+    setIsEditMode(false);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -76,23 +96,9 @@ export default function EntrepreneursPage() {
     }
   };
 
-  const handleEdit = (entrepreneur) => {
-    setSelectedEntrepreneur(entrepreneur);
-    setEntrepreneurData(entrepreneur);
-    setIsEditMode(true);
-    setIsModalOpen(true);
-  };
-
-  const handleCreate = () => {
-    setSelectedEntrepreneur(null);
-    setEntrepreneurData({});
-    setIsEditMode(false);
-    setIsModalOpen(true);
-  };
-
-  const handleView = (entrepreneur) => {
-    setSelectedEntrepreneur(entrepreneur);
-  };
+  if (loading) {
+    return <div>Загрузка...</div>;
+  }
 
   return (
     <div>
@@ -102,14 +108,16 @@ export default function EntrepreneursPage() {
         entrepreneurs.map((entrepreneur) => (
           <div key={entrepreneur.id} className="border p-4 mb-4 rounded">
             <h2 className="text-xl font-bold">{entrepreneur.name}</h2>
-            <p>{entrepreneur.description || "Описание отсутствует"}</p>
+            <p>
+              <strong>ОГРНИП:</strong> {entrepreneur.ogrnip}
+            </p>
+            <p>
+              <strong>ИНН:</strong> {entrepreneur.inn}
+            </p>
+            <p>
+              <strong>Телефон:</strong> {entrepreneur.phone || "Не указан"}
+            </p>
             <div className="flex space-x-4 mt-2">
-              <button
-                onClick={() => handleView(entrepreneur)}
-                className="bg-blue-500 text-white py-1 px-4 rounded"
-              >
-                Просмотр
-              </button>
               <button
                 onClick={() => handleEdit(entrepreneur)}
                 className="bg-yellow-500 text-white py-1 px-4 rounded"
@@ -136,85 +144,71 @@ export default function EntrepreneursPage() {
         Добавить ИП
       </button>
 
-      {selectedEntrepreneur && (
-        <div className="border mt-6 p-4 rounded bg-gray-100">
-          <h2 className="text-xl font-bold mb-2">Детали ИП</h2>
-          <p>
-            <strong>Название:</strong> {selectedEntrepreneur.name}
-          </p>
-          <p>
-            <strong>ОГРНИП:</strong> {selectedEntrepreneur.ogrnip}
-          </p>
-          <p>
-            <strong>ИНН:</strong> {selectedEntrepreneur.inn}
-          </p>
-          <p>
-            <strong>Адрес:</strong> {selectedEntrepreneur.address || "Не указан"}
-          </p>
-          <p>
-            <strong>Email:</strong> {selectedEntrepreneur.email || "Не указан"}
-          </p>
-        </div>
-      )}
+      <CustomModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={isEditMode ? "Редактировать ИП" : "Создать ИП"}
+      >
+        <Formik
+          initialValues={{
+            name: selectedEntrepreneur?.name || "",
+            ogrnip: selectedEntrepreneur?.ogrnip || "",
+            inn: selectedEntrepreneur?.inn || "",
+            phone: selectedEntrepreneur?.phone || "",
+            email: selectedEntrepreneur?.email || "",
+            address: selectedEntrepreneur?.address || "",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              {[
+                { name: "name", placeholder: "Название", required: true },
+                { name: "ogrnip", placeholder: "ОГРНИП", required: true },
+                { name: "inn", placeholder: "ИНН", required: true },
+                { name: "phone", placeholder: "Телефон", required: true },
+                { name: "email", placeholder: "Email", required: false },
+                { name: "address", placeholder: "Адрес", required: true },
+              ].map((field) => (
+                <div key={field.name} className="mb-3">
+                  <label className="block mb-1 font-medium">
+                    {field.placeholder}{" "}
+                    {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  <Field
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    className="w-full p-2 border rounded"
+                  />
+                  <ErrorMessage
+                    name={field.name}
+                    component="p"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+              ))}
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">
-              {isEditMode ? "Редактировать ИП" : "Создать ИП"}
-            </h2>
-            <input
-              type="text"
-              placeholder="Название"
-              value={entrepreneurData.name || ""}
-              onChange={(e) => setEntrepreneurData({ ...entrepreneurData, name: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="ОГРНИП"
-              value={entrepreneurData.ogrnip || ""}
-              onChange={(e) => setEntrepreneurData({ ...entrepreneurData, ogrnip: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="ИНН"
-              value={entrepreneurData.inn || ""}
-              onChange={(e) => setEntrepreneurData({ ...entrepreneurData, inn: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Email"
-              value={entrepreneurData.email || ""}
-              onChange={(e) => setEntrepreneurData({ ...entrepreneurData, email: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Адрес"
-              value={entrepreneurData.address || ""}
-              onChange={(e) => setEntrepreneurData({ ...entrepreneurData, address: e.target.value })}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-500 text-white py-2 px-4 rounded"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={handleCreateOrUpdate}
-                className="bg-green-500 text-white py-2 px-4 rounded"
-              >
-                Сохранить
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="bg-gray-500 text-white py-2 px-4 rounded"
+                >
+                  Отмена
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-green-500 text-white py-2 px-4 rounded"
+                >
+                  {isSubmitting ? "Сохранение..." : "Сохранить"}
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </CustomModal>
     </div>
   );
 }

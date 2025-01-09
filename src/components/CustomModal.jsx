@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function ModalWrapper({ isOpen, onClose, title, children }) {
+export default function CustomModal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null; // Если окно закрыто, ничего не рендерим
 
   return (
