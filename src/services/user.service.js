@@ -5,7 +5,9 @@ import api from "./api";
 const getUserDetails = async () => {
     return await api.get(apiUrl + "user/details");
 };
-
+const updateUserInfo = async (data) => {
+  return await api.put(apiUrl + "user/update", data);
+};
 // Сервисы для организаций
 const getOrganizations = async () => {
     return await api.get(apiUrl + "organizations/");
@@ -89,6 +91,7 @@ const deleteProduct = async (id) => {
 // Экспорт всех методов
 const UserService = {
     getUserDetails,
+    updateUserInfo,
     getOrganizations,
     createOrganization,
     updateOrganization,
