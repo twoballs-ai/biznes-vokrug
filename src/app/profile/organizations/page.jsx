@@ -1,211 +1,241 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import OrganizationCard from "../../../components/profile/organization/OrganizationCard";
+import OrganizationModal from "../../../components/profile/organization/OrganizationModal";
+import ProductModal from "../../../components/profile/organization/ProductModal";
+import ServiceModal from "../../../components/profile/organization/ServiceModal";
+
 import UserService from "../../../services/user.service";
-import CustomModal from "../../../components/CustomModal";
 
 export default function OrganizationsPage() {
-  const [organizations, setOrganizations] = useState([]);
-  const [selectedOrg, setSelectedOrg] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
 
-  const fetchOrganizationsByUser = async () => {
-    setLoading(true);
+  // Основные данные
+  const [organizations, setOrganizations] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  // Модальные окна (организация / продукт / услуга)
+  const [orgModalOpen, setOrgModalOpen] = useState(false);
+  const [selectedOrg, setSelectedOrg] = useState(null);
+
+  const [productModalOpen, setProductModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [currentOrgForProduct, setCurrentOrgForProduct] = useState(null);
+
+  const [serviceModalOpen, setServiceModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [currentOrgForService, setCurrentOrgForService] = useState(null);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 1. Загрузка данных
+  // ─────────────────────────────────────────────────────────────────────────
+  const fetchOrganizations = async () => {
     try {
       const response = await UserService.getOrganizationsByUser();
       if (response.data.status) {
         setOrganizations(response.data.data);
-        setMessage("");
       } else {
-        setOrganizations([]);
-        setMessage(response.data.message || "Организации не найдены.");
+        toast.error(response.data.message || "Организации не найдены.");
       }
     } catch (error) {
       console.error("Ошибка при загрузке организаций:", error);
-      setMessage("Произошла ошибка при загрузке данных.");
-    } finally {
-      setLoading(false);
+      toast.error("Ошибка при загрузке организаций.");
+    }
+  };
+
+  const fetchProductsAndServices = async () => {
+    try {
+      const productsResp = await UserService.getProductByUser();
+      const servicesResp = await UserService.getServiceByUser();
+      setProducts(productsResp.data.data || []);
+      setServices(servicesResp.data.data || []);
+    } catch (error) {
+      console.error("Ошибка при загрузке продуктов/услуг:", error);
+      toast.error("Ошибка при загрузке продуктов/услуг.");
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await UserService.getProductCategories();
+      setCategories(response.data || []);
+    } catch (error) {
+      console.error("Ошибка при загрузке категорий:", error);
+      toast.error("Ошибка при загрузке категорий.");
     }
   };
 
   useEffect(() => {
-    fetchOrganizationsByUser();
+    setLoading(true);
+    Promise.all([fetchOrganizations(), fetchProductsAndServices(), fetchCategories()])
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false));
   }, []);
 
-  const validationSchema = Yup.object({
-    name: Yup.string().required("Название обязательно"),
-    address: Yup.string().required("Адрес обязателен"),
-    inn: Yup.string()
-      .required("ИНН обязателен")
-      .matches(/^\d{10}$/, "ИНН должен содержать 10 цифр"),
-    ogrn: Yup.string()
-      .required("ОГРН обязателен")
-      .matches(/^\d{13}$/, "ОГРН должен содержать 13 цифр"),
-    phone: Yup.string().required("Телефон обязателен"),
-    email: Yup.string().email("Некорректный email"),
-    website: Yup.string().url("Некорректный URL"),
-  });
+  // ─────────────────────────────────────────────────────────────────────────
+  // 2. CRUD-операции (Организация, Продукт, Услуга)
+  // ─────────────────────────────────────────────────────────────────────────
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    try {
-      if (isEditMode) {
-        await UserService.updateOrganization(selectedOrg.id, values);
-        alert("Организация успешно обновлена");
-      } else {
-        await UserService.createOrganization(values);
-        alert("Организация успешно создана");
-      }
-      setIsModalOpen(false);
-      fetchOrganizationsByUser();
-      resetForm();
-    } catch (error) {
-      console.error("Ошибка при сохранении организации:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleEdit = (org) => {
+  // A) Организации
+  const openOrgModal = (org = null) => {
     setSelectedOrg(org);
-    setIsEditMode(true);
-    setIsModalOpen(true);
+    setOrgModalOpen(true);
   };
 
-  const handleCreate = () => {
-    setSelectedOrg(null);
-    setIsEditMode(false);
-    setIsModalOpen(true);
+  const onOrgSaved = () => {
+    setOrgModalOpen(false);
+    fetchOrganizations();
   };
 
-  const handleDelete = async (id) => {
+  // ===> Вот та самая функция удаления организации <===
+  const handleDeleteOrg = async (id) => {
     if (!confirm("Вы уверены, что хотите удалить организацию?")) return;
-
     try {
       await UserService.deleteOrganization(id);
-      alert("Организация успешно удалена");
-      fetchOrganizationsByUser();
+      toast.success("Организация успешно удалена");
+      fetchOrganizations();
     } catch (error) {
       console.error("Ошибка при удалении организации:", error);
+      toast.error("Ошибка при удалении организации.");
     }
   };
 
+  // B) Продукты
+  const openProductModal = (org, product = null) => {
+    setCurrentOrgForProduct(org);
+    setSelectedProduct(product);
+    setProductModalOpen(true);
+  };
+
+  const onProductSaved = () => {
+    setProductModalOpen(false);
+    fetchProductsAndServices();
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await UserService.deleteProduct(productId);
+      toast.success("Продукт успешно удален");
+      fetchProductsAndServices();
+    } catch (error) {
+      console.error("Ошибка при удалении продукта:", error);
+      toast.error("Ошибка при удалении продукта.");
+    }
+  };
+
+  // C) Услуги
+  const openServiceModal = (org, service = null) => {
+    setCurrentOrgForService(org);
+    setSelectedService(service);
+    setServiceModalOpen(true);
+  };
+
+  const onServiceSaved = () => {
+    setServiceModalOpen(false);
+    fetchProductsAndServices();
+  };
+
+  const handleDeleteService = async (serviceId) => {
+    if (!confirm("Вы уверены, что хотите удалить услугу?")) return;
+    try {
+      await UserService.deleteService(serviceId);
+      toast.success("Услуга успешно удалена");
+      fetchProductsAndServices();
+    } catch (error) {
+      console.error("Ошибка при удалении услуги:", error);
+      toast.error("Ошибка при удалении услуги.");
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 3. Рендер
+  // ─────────────────────────────────────────────────────────────────────────
   if (loading) {
     return <div>Загрузка...</div>;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Мои организации</h1>
+      <ToastContainer />
 
-      {/* Список организаций */}
+      <h1 className="text-2xl font-bold mb-4">Управление организациями, продуктами, услугами</h1>
+
       {organizations.length > 0 ? (
-        organizations.map((org) => (
-          <div key={org.id} className="border p-4 mb-4 rounded">
-            <h2 className="text-xl font-bold">{org.name}</h2>
-            <p>{org.description || "Описание отсутствует"}</p>
-            <div className="flex space-x-4 mt-2">
-              <button
-                onClick={() => handleEdit(org)}
-                className="bg-yellow-500 text-white py-1 px-4 rounded"
-              >
-                Редактировать
-              </button>
-              <button
-                onClick={() => handleDelete(org.id)}
-                className="bg-red-500 text-white py-1 px-4 rounded"
-              >
-                Удалить
-              </button>
-            </div>
-          </div>
-        ))
+        organizations.map((org) => {
+          const orgProducts = products.filter((p) => p.organizationId === org.id);
+          const orgServices = services.filter((s) => s.organizationId === org.id);
+
+          return (
+            <OrganizationCard
+              key={org.id}
+              organization={org}
+              products={orgProducts}
+              services={orgServices}
+
+              // Редактирование организации
+              onEditOrg={() => openOrgModal(org)}
+              // Удаление организации (колбэк с id)
+              onDeleteOrg={handleDeleteOrg}
+
+              // Продукты
+              openProductModal={openProductModal}
+              onDeleteProduct={handleDeleteProduct}
+
+              // Услуги
+              openServiceModal={openServiceModal}
+              onDeleteService={handleDeleteService}
+            />
+          );
+        })
       ) : (
-        <p>Организации отсутствуют</p>
+        <p>Нет организаций</p>
       )}
 
       <button
-        onClick={handleCreate}
-        className="mt-4 bg-green-600 text-white py-2 px-4 rounded"
+        onClick={() => openOrgModal(null)}
+        className="bg-green-600 text-white py-2 px-4 rounded"
       >
         Добавить организацию
       </button>
 
-      {/* Модальное окно для создания/редактирования */}
-      <CustomModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={isEditMode ? "Редактировать организацию" : "Создать организацию"}
-      >
-        <Formik
-          initialValues={{
-            name: selectedOrg?.name || "",
-            description: selectedOrg?.description || "",
-            address: selectedOrg?.address || "",
-            inn: selectedOrg?.inn || "",
-            ogrn: selectedOrg?.ogrn || "",
-            phone: selectedOrg?.phone || "",
-            website: selectedOrg?.website || "",
-            email: selectedOrg?.email || "",
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form>
-              {[
-                { name: "name", placeholder: "Название", type: "text", required: true },
-                { name: "description", placeholder: "Описание", type: "text", required: false },
-                { name: "address", placeholder: "Адрес", type: "text", required: true },
-                { name: "inn", placeholder: "ИНН", type: "text", required: true },
-                { name: "ogrn", placeholder: "ОГРН", type: "text", required: true },
-                { name: "phone", placeholder: "Телефон", type: "text", required: true },
-                { name: "website", placeholder: "Веб-сайт", type: "text", required: false },
-                { name: "email", placeholder: "Email", type: "email", required: false },
-              ].map((field) => (
-                <div key={field.name} className="mb-3">
-                  <label className="block mb-1 font-medium">
-                    {field.placeholder}{" "}
-                    {field.required && <span className="text-red-500">*</span>}
-                  </label>
-                  <Field
-                    type={field.type}
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    className="w-full p-2 border rounded"
-                  />
-                  <ErrorMessage
-                    name={field.name}
-                    component="p"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-              ))}
+      {/* Модальное окно для организации */}
+      {orgModalOpen && (
+        <OrganizationModal
+          isOpen={orgModalOpen}
+          onClose={() => setOrgModalOpen(false)}
+          organization={selectedOrg}
+          onSaved={onOrgSaved}
+        />
+      )}
 
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="bg-gray-500 text-white py-2 px-4 rounded"
-                >
-                  Отмена
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-green-500 text-white py-2 px-4 rounded"
-                >
-                  {isSubmitting ? "Сохранение..." : "Сохранить"}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </CustomModal>
+      {/* Модальное окно для продуктов */}
+      {productModalOpen && (
+        <ProductModal
+          isOpen={productModalOpen}
+          onClose={() => setProductModalOpen(false)}
+          product={selectedProduct}
+          categories={categories}
+          organization={currentOrgForProduct}
+          onSaved={onProductSaved}
+        />
+      )}
+
+      {/* Модальное окно для услуг */}
+      {serviceModalOpen && (
+        <ServiceModal
+          isOpen={serviceModalOpen}
+          onClose={() => setServiceModalOpen(false)}
+          service={selectedService}
+          organization={currentOrgForService}
+          onSaved={onServiceSaved}
+        />
+      )}
     </div>
   );
 }

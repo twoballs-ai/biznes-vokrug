@@ -42,8 +42,8 @@ const createIndividualEntrepreneur = async (data) => {
     return await api.post(apiUrl + "individual-entrepreneurs/", data);
 };
 
-const updateIndividualEntrepreneur = async (id, data) => {
-    return await api.put(apiUrl + `individual-entrepreneurs/${id}`, data);
+const updateIndividualEntrepreneur = async (data) => {
+    return await api.put(apiUrl + `individual-entrepreneurs`, data);
 };
 
 const deleteIndividualEntrepreneur = async (id) => {
@@ -87,6 +87,15 @@ const updateProduct = async (id, data) => {
 const deleteProduct = async (id) => {
     return await api.delete(apiUrl + `products/${id}`);
 };
+const getProductByUser = async () => {
+    return await api.get(apiUrl + "category-products/products_by_user/");
+};
+const getServiceByUser= async () => {
+    return await api.get(apiUrl + "category-products/services_by_user");
+};
+const getProductCategories= async () => {
+    return await api.get(apiUrl + "category-products/product-categories-dropdown");
+};
 
 // Экспорт всех методов
 const UserService = {
@@ -111,6 +120,9 @@ const UserService = {
     getProductById,
     updateProduct,
     deleteProduct,
+    getProductByUser,
+    getServiceByUser,
+    getProductCategories
 };
 
 export default UserService;

@@ -9,8 +9,6 @@ export default function ProfileLayout({ children }) {
   const menuItems = [
     { name: "Организации", href: "/profile/organizations" },
     { name: "Индивидуальный предприниматель", href: "/profile/ip" },
-    { name: "Продукты", href: "/profile/products" },
-    { name: "Услуги", href: "/profile/services" },
   ];
 
   return (
