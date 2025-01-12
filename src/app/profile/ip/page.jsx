@@ -5,10 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import IPCard from "../../../components/profile/ip/IPCard";
-import IPModal from "../../../components/profile/ip/IPModal";
-import IpProductModal from "../../../components/profile/ip/IpProductModal";
-import IpServiceModal from "../../../components/profile/ip/IpServiceModal";
-
+import IPModal from "../../../components/profile/ip/IPModal"; // Для создания нового ИП
 import UserService from "../../../services/user.service";
 
 export default function EntrepreneurPage() {
@@ -18,41 +15,19 @@ export default function EntrepreneurPage() {
   const [entrepreneur, setEntrepreneur] = useState(null);
   const [products, setProducts] = useState([]);
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  // Модальные окна
+  // Модалка для создания нового ИП, если в базе его нет
   const [ipModalOpen, setIpModalOpen] = useState(false);
-  const [productModalOpen, setProductModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const [serviceModalOpen, setServiceModalOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState(null);
-const [categories, setCategories] = useState([]);
-
-const fetchCategories = async () => {
-  try {
-    const response = await UserService.getProductCategories();
-    setCategories(response.data); // Убедитесь, что data содержит массив категорий
-  } catch (error) {
-    console.error("Ошибка при загрузке категорий продуктов:", error);
-    toast.error("Не удалось загрузить категории продуктов.");
-  }
-};
-
-useEffect(() => {
-  setLoading(true);
-  Promise.all([fetchEntrepreneur(), fetchProductsAndServices(), fetchCategories()])
-    .then(() => setLoading(false))
-    .catch(() => setLoading(false));
-}, []);
   // ─────────────────────────────────────────────────────────────────────────
-  // Функции загрузки данных
+  // 1) Функции загрузки данных
   // ─────────────────────────────────────────────────────────────────────────
   const fetchEntrepreneur = async () => {
     try {
       const response = await UserService.getIndividualEntrepreneursByUser();
       if (response.data.status) {
-      console.log(response.data.data)
-        setEntrepreneur(response.data.data); // Получаем первого (единственного) ИП
+        setEntrepreneur(response.data.data);
       } else {
         setEntrepreneur(null);
         toast.error(response.data.message || "ИП не найден.");
@@ -63,96 +38,60 @@ useEffect(() => {
     }
   };
 
-  const fetchProductsAndServices = async () => {
+  const fetchProducts = async () => {
     try {
-      const productsResp = await UserService.getProductByUser();
-      console.log()
-      const servicesResp = await UserService.getServiceByUser();
+      const productsResp = await UserService.getProductByUserIP();
       setProducts(productsResp.data.data || []);
-      setServices(servicesResp.data.data || []);
     } catch (error) {
-      console.error("Ошибка при загрузке продуктов/услуг:", error);
+      console.error("Ошибка при загрузке продуктов:", error);
       toast.error("Ошибка при загрузке продуктов/услуг.");
     }
   };
 
+  const fetchServices = async () => {
+    // Если у вас есть отдельный эндпоинт для загрузки услуг — раскомментируйте:
+    // try {
+    //   const servicesResp = await UserService.getServiceByUser();
+    //   setServices(servicesResp.data.data || []);
+    // } catch (error) {
+    //   console.error("Ошибка при загрузке услуг:", error);
+    //   toast.error("Ошибка при загрузке услуг.");
+    // }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await UserService.getProductCategories();
+      setCategories(response.data || []);
+    } catch (error) {
+      console.error("Ошибка при загрузке категорий продуктов:", error);
+      toast.error("Не удалось загрузить категории продуктов.");
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 2) useEffect: загрузка всех данных при монтировании
+  // ─────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchEntrepreneur(), fetchProductsAndServices()])
+    Promise.all([fetchEntrepreneur(), fetchProducts(), fetchServices(), fetchCategories()])
       .then(() => setLoading(false))
       .catch(() => setLoading(false));
   }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // CRUD-операции
+  // 3) Колбэк для обновления данных (CRUD завершился)
   // ─────────────────────────────────────────────────────────────────────────
-
-  // A) Индивидуальный предприниматель
-  const openIPModal = () => {
-    setIpModalOpen(true);
+  const refreshData = async () => {
+    await Promise.all([fetchEntrepreneur(), fetchProducts(), fetchServices()]);
   };
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // 4) Сохранение (создание) ИП через модалку
+  // ─────────────────────────────────────────────────────────────────────────
   const onIPSaved = () => {
     setIpModalOpen(false);
-    fetchEntrepreneur();
-  };
-
-  const handleDeleteIP = async () => {
-    if (!confirm("Вы уверены, что хотите удалить ИП?")) return;
-    try {
-      await UserService.deleteIndividualEntrepreneur(entrepreneur.id);
-      toast.success("ИП успешно удалён");
-      setEntrepreneur(null);
-    } catch (error) {
-      console.error("Ошибка при удалении ИП:", error);
-      toast.error("Ошибка при удалении ИП.");
-    }
-  };
-
-  // B) Продукты
-  const openProductModal = (product = null) => {
-    setSelectedProduct(product);
-    setProductModalOpen(true);
-  };
-
-  const onProductSaved = () => {
-    setProductModalOpen(false);
-    fetchProductsAndServices();
-  };
-
-  const handleDeleteProduct = async (productId) => {
-    if (!confirm("Вы уверены, что хотите удалить продукт?")) return;
-    try {
-      await UserService.deleteProduct(productId);
-      toast.success("Продукт успешно удалён");
-      fetchProductsAndServices();
-    } catch (error) {
-      console.error("Ошибка при удалении продукта:", error);
-      toast.error("Ошибка при удалении продукта.");
-    }
-  };
-
-  // C) Услуги
-  const openServiceModal = (service = null) => {
-    setSelectedService(service);
-    setServiceModalOpen(true);
-  };
-
-  const onServiceSaved = () => {
-    setServiceModalOpen(false);
-    fetchProductsAndServices();
-  };
-
-  const handleDeleteService = async (serviceId) => {
-    if (!confirm("Вы уверены, что хотите удалить услугу?")) return;
-    try {
-      await UserService.deleteService(serviceId);
-      toast.success("Услуга успешно удалена");
-      fetchProductsAndServices();
-    } catch (error) {
-      console.error("Ошибка при удалении услуги:", error);
-      toast.error("Ошибка при удалении услуги.");
-    }
+    refreshData();
   };
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -165,26 +104,25 @@ useEffect(() => {
   return (
     <div>
       <ToastContainer />
-
-      <h1 className="text-2xl font-bold mb-4">Управление индивидуальным предпринимателем</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        Управление индивидуальным предпринимателем
+      </h1>
 
       {entrepreneur ? (
+        // Если ИП есть, рендерим карточку (дочерний компонент)
         <IPCard
           entrepreneur={entrepreneur}
-          products={products.filter((p) => p.ownerId === entrepreneur.id && p.ownerType === "individual")}
-          services={services.filter((s) => s.ownerId === entrepreneur.id && s.ownerType === "individual")}
-          onEditIP={openIPModal}
-          onDeleteIP={handleDeleteIP}
-          openProductModal={openProductModal}
-          onDeleteProduct={handleDeleteProduct}
-          openServiceModal={openServiceModal}
-          onDeleteService={handleDeleteService}
+          products={products}
+          services={services}
+          categories={categories}
+          onRefresh={refreshData}
         />
       ) : (
+        // Если ИП нет, предлагаем создать
         <div>
           <p>ИП отсутствует</p>
           <button
-            onClick={openIPModal}
+            onClick={() => setIpModalOpen(true)}
             className="bg-green-600 text-white py-2 px-4 rounded"
           >
             Добавить ИП
@@ -192,34 +130,13 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Модальные окна */}
+      {/* Модалка создания ИП (открывается, если ИП отсутствует) */}
       {ipModalOpen && (
         <IPModal
           isOpen={ipModalOpen}
           onClose={() => setIpModalOpen(false)}
-          entrepreneur={entrepreneur}
+          entrepreneur={null}
           onSaved={onIPSaved}
-        />
-      )}
-
-      {productModalOpen && (
-        <IpProductModal
-          isOpen={productModalOpen}
-          onClose={() => setProductModalOpen(false)}
-          product={selectedProduct}
-          entrepreneur={entrepreneur}
-          onSaved={onProductSaved}
-          categories={categories} // Передаем категории
-        />
-      )}
-
-      {serviceModalOpen && (
-        <IpServiceModal
-          isOpen={serviceModalOpen}
-          onClose={() => setServiceModalOpen(false)}
-          service={selectedService}
-          entrepreneur={entrepreneur}
-          onSaved={onServiceSaved}
         />
       )}
     </div>

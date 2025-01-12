@@ -25,11 +25,9 @@ const login = async (payload) => {
 
 
 const refreshToken = async () => {
-  const refresh_token = TokenService.getLocalRefreshToken();
-  const formData = new URLSearchParams();
-  formData.append('refresh_token', refresh_token);
+  const refresh_token = TokenService.getLocalRefreshToken();                                                                                         
   try {
-    const response = await axios.post(apiUrl + "v1/user/token/refresh/", formData, {
+    const response = await axios.post(apiUrl + "refresh/", refresh_token, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },

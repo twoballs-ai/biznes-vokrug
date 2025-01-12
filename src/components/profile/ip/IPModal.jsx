@@ -7,6 +7,7 @@ import CustomModal from "../../CustomModal";
 import UserService from "../../../services/user.service";
 import { toast } from "react-toastify";
 
+// Схема валидации
 const validationSchema = Yup.object({
   name: Yup.string().required("Название обязательно"),
   ogrnip: Yup.string()
@@ -19,17 +20,20 @@ const validationSchema = Yup.object({
 });
 
 export default function IPModal({ isOpen, onClose, entrepreneur, onSaved }) {
+  // Обработка сабмита формы
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       if (entrepreneur) {
+        // Если entrepreneur существует, значит редактирование
         await UserService.updateIndividualEntrepreneur(values);
         toast.success("ИП успешно обновлён");
       } else {
+        // Если entrepreneur == null, значит создание
         await UserService.createIndividualEntrepreneur(values);
         toast.success("ИП успешно создан");
       }
       onClose();
-      onSaved();
+      onSaved();     // Сообщаем родителю о сохранении
       resetForm();
     } catch (error) {
       console.error("Ошибка при сохранении ИП:", error);
@@ -51,7 +55,6 @@ export default function IPModal({ isOpen, onClose, entrepreneur, onSaved }) {
           ogrnip: entrepreneur?.ogrnip || "",
           inn: entrepreneur?.inn || "",
           phone: entrepreneur?.phone || "",
-
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -59,19 +62,19 @@ export default function IPModal({ isOpen, onClose, entrepreneur, onSaved }) {
         {({ isSubmitting }) => (
           <Form>
             {[
-              { name: "name", placeholder: "Название", required: true },
-              { name: "ogrnip", placeholder: "ОГРНИП", required: true },
-              { name: "inn", placeholder: "ИНН", required: true },
-              { name: "phone", placeholder: "Телефон", required: true },
+              { name: "name", label: "Название", required: true },
+              { name: "ogrnip", label: "ОГРНИП", required: true },
+              { name: "inn", label: "ИНН", required: true },
+              { name: "phone", label: "Телефон", required: true },
             ].map((field) => (
               <div key={field.name} className="mb-3">
                 <label className="block mb-1 font-medium">
-                  {field.placeholder}
+                  {field.label}
                   {field.required && <span className="text-red-500"> *</span>}
                 </label>
                 <Field
                   name={field.name}
-                  placeholder={field.placeholder}
+                  placeholder={field.label}
                   className="w-full p-2 border rounded"
                 />
                 <ErrorMessage
@@ -81,6 +84,7 @@ export default function IPModal({ isOpen, onClose, entrepreneur, onSaved }) {
                 />
               </div>
             ))}
+
             <div className="flex justify-end space-x-2">
               <button
                 type="button"

@@ -8,9 +8,8 @@ import UserService from "../../../services/user.service";
 export default function IpProductModal({
   isOpen,
   onClose,
-  product, // Если редактирование, передаётся объект продукта
-  entrepreneur, // Связь с ИП
-  categories, // Список категорий
+  product,       // null => создание, объект => редактирование
+  categories,    // Список категорий для <select>
   onSaved,
 }) {
   const [localProduct, setLocalProduct] = useState({
@@ -19,12 +18,12 @@ export default function IpProductModal({
     category_id: "",
     price: "",
   });
-console.log(product)
-  // Сброс состояния при открытии модального окна
+
+  // При открытии модалки (isOpen), проверяем product:
   useEffect(() => {
     if (isOpen) {
       if (product) {
-        // Редактируем существующий продукт
+        // Редактирование существующего продукта
         setLocalProduct({
           name: product.name || "",
           description: product.description || "",
@@ -32,7 +31,7 @@ console.log(product)
           price: product.price || "",
         });
       } else {
-        // Создаём новый продукт, сбрасываем все данные
+        // Создание нового продукта (сброс полей)
         setLocalProduct({
           name: "",
           description: "",
@@ -41,24 +40,22 @@ console.log(product)
         });
       }
     }
-  }, [isOpen, product]); // Следим за изменениями `isOpen` и `product`
+  }, [isOpen, product]);
 
+  // Обработка сохранения (создание/редактирование)
   const handleSave = async () => {
     try {
       if (product) {
-        // Редактирование продукта
+        // Редактирование
         await UserService.updateProduct(product.id, localProduct);
         toast.success("Продукт успешно обновлён");
       } else {
-        // Создание нового продукта
-        await UserService.createProduct({
-          ...localProduct,
-          individual_entrepreneur_id: entrepreneur.id, // Связываем продукт с ИП
-        });
+        // Создание
+        await UserService.createProductForIp(localProduct);
         toast.success("Продукт успешно создан");
       }
-      onClose(); // Закрываем модальное окно
-      onSaved(); // Обновляем родительский компонент
+      onClose();  // Закрываем модалку
+      onSaved();  // Обновляем родительские данные
     } catch (error) {
       console.error("Ошибка при сохранении продукта:", error);
       toast.error("Ошибка при сохранении продукта.");
@@ -82,17 +79,19 @@ console.log(product)
           }
         />
       </div>
+
       <div className="mb-3">
         <label className="block mb-1 font-medium">Описание продукта</label>
-        <input
-          type="text"
+        <textarea
           className="w-full p-2 border rounded"
           value={localProduct.description}
+          rows={4}
           onChange={(e) =>
             setLocalProduct({ ...localProduct, description: e.target.value })
           }
         />
       </div>
+
       <div className="mb-3">
         <label className="block mb-1 font-medium">Категория *</label>
         <select
@@ -103,7 +102,7 @@ console.log(product)
           }
         >
           <option value="">Выберите</option>
-          {categories.length > 0 ? (
+          {categories?.length > 0 ? (
             categories.map((c) => (
               <option key={c.key} value={c.key}>
                 {c.value}
@@ -116,8 +115,9 @@ console.log(product)
           )}
         </select>
       </div>
+
       <div className="mb-3">
-        <label className="block mb-1 font-medium">Цена *</label>
+        <label className="block mb-1 font-medium">Цена в рублях *</label>
         <input
           type="number"
           className="w-full p-2 border rounded"
@@ -127,17 +127,12 @@ console.log(product)
           }
         />
       </div>
+
       <div className="flex justify-end space-x-2">
-        <button
-          onClick={onClose}
-          className="bg-gray-500 text-white px-4 py-2 rounded"
-        >
+        <button onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">
           Отмена
         </button>
-        <button
-          onClick={handleSave}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
+        <button onClick={handleSave} className="bg-green-500 text-white px-4 py-2 rounded">
           Сохранить
         </button>
       </div>

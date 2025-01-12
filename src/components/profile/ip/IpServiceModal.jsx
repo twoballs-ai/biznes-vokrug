@@ -8,8 +8,8 @@ import UserService from "../../../services/user.service";
 export default function IpServiceModal({
   isOpen,
   onClose,
-  service,
-  entrepreneur,
+  service,           // null => создание, объект => редактирование
+  entrepreneur,      // нужен только при создании, чтобы привязать к ИП
   onSaved,
 }) {
   const [localService, setLocalService] = useState({
@@ -18,14 +18,28 @@ export default function IpServiceModal({
     price: "",
   });
 
+  // При открытии модалки (isOpen), проверяем service:
   useEffect(() => {
-    setLocalService(
-      service
-        ? { name: service.name || "", description: service.description || "", price: service.price || "" }
-        : { name: "", description: "", price: "" }
-    );
-  }, [service]);
+    if (isOpen) {
+      if (service) {
+        // Редактирование
+        setLocalService({
+          name: service.name || "",
+          description: service.description || "",
+          price: service.price || "",
+        });
+      } else {
+        // Создание
+        setLocalService({
+          name: "",
+          description: "",
+          price: "",
+        });
+      }
+    }
+  }, [isOpen, service]);
 
+  // Обработка сохранения
   const handleSave = async () => {
     try {
       if (service) {
@@ -63,6 +77,7 @@ export default function IpServiceModal({
           onChange={(e) => setLocalService({ ...localService, name: e.target.value })}
         />
       </div>
+
       <div className="mb-3">
         <label className="block mb-1 font-medium">Описание услуги</label>
         <input
@@ -72,6 +87,7 @@ export default function IpServiceModal({
           onChange={(e) => setLocalService({ ...localService, description: e.target.value })}
         />
       </div>
+
       <div className="mb-3">
         <label className="block mb-1 font-medium">Цена *</label>
         <input
@@ -81,6 +97,7 @@ export default function IpServiceModal({
           onChange={(e) => setLocalService({ ...localService, price: e.target.value })}
         />
       </div>
+
       <div className="flex justify-end space-x-2">
         <button onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">
           Отмена
