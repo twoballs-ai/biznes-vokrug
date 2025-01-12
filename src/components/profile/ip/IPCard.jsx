@@ -14,7 +14,8 @@ export default function IPCard({
   entrepreneur,
   products,
   services,
-  categories,
+  product_categories,
+  service_categories,
   onRefresh,
 }) {
   // Локальные стейты для управления модалками
@@ -209,7 +210,7 @@ export default function IPCard({
           onClose={() => setProductModalOpen(false)}
           product={selectedProduct}
           onSaved={onProductSaved}
-          categories={categories}
+          categories={product_categories}
         />
       )}
       {serviceModalOpen && (
@@ -217,7 +218,7 @@ export default function IPCard({
           isOpen={serviceModalOpen}
           onClose={() => setServiceModalOpen(false)}
           service={selectedService}
-          entrepreneur={entrepreneur}
+          categories={service_categories}
           onSaved={onServiceSaved}
         />
       )}

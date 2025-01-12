@@ -15,8 +15,9 @@ export default function EntrepreneurPage() {
   const [entrepreneur, setEntrepreneur] = useState(null);
   const [products, setProducts] = useState([]);
   const [services, setServices] = useState([]);
-  const [categories, setCategories] = useState([]);
-
+  const [product_categories, setProductCategories] = useState([]);
+  const [service_categories, setServiceCategories] = useState([]);
+ 
   // Модалка для создания нового ИП, если в базе его нет
   const [ipModalOpen, setIpModalOpen] = useState(false);
 
@@ -49,20 +50,22 @@ export default function EntrepreneurPage() {
   };
 
   const fetchServices = async () => {
-    // Если у вас есть отдельный эндпоинт для загрузки услуг — раскомментируйте:
-    // try {
-    //   const servicesResp = await UserService.getServiceByUser();
-    //   setServices(servicesResp.data.data || []);
-    // } catch (error) {
-    //   console.error("Ошибка при загрузке услуг:", error);
-    //   toast.error("Ошибка при загрузке услуг.");
-    // }
+
+    try {
+      const servicesResp = await UserService.getServiceByUserIP();
+      setServices(servicesResp.data.data || []);
+    } catch (error) {
+      console.error("Ошибка при загрузке услуг:", error);
+      toast.error("Ошибка при загрузке услуг.");
+    }
   };
 
   const fetchCategories = async () => {
     try {
-      const response = await UserService.getProductCategories();
-      setCategories(response.data || []);
+      const productResponse = await UserService.getProductCategories();
+      const serviceResponse = await UserService.getServiceCategories();
+      setProductCategories(productResponse.data || []);
+      setServiceCategories(serviceResponse.data || []);
     } catch (error) {
       console.error("Ошибка при загрузке категорий продуктов:", error);
       toast.error("Не удалось загрузить категории продуктов.");
@@ -114,7 +117,8 @@ export default function EntrepreneurPage() {
           entrepreneur={entrepreneur}
           products={products}
           services={services}
-          categories={categories}
+          product_categories={product_categories}
+          service_categories={service_categories}
           onRefresh={refreshData}
         />
       ) : (

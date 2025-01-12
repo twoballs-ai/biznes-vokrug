@@ -55,9 +55,6 @@ const getIndividualEntrepreneurById = async (id) => {
 };
 
 // Сервисы для услуг
-const createService = async (data) => {
-    return await api.post(apiUrl + "services/", data);
-};
 
 const getServiceById = async (id) => {
     return await api.get(apiUrl + `services/${id}`);
@@ -71,9 +68,12 @@ const deleteService = async (id) => {
     return await api.delete(apiUrl + `services/${id}`);
 };
 
-// Сервисы для продуктов
+
 const createProductForIp = async (data) => {
     return await api.post(apiUrl + "category-products/products/entrepreneur", data);
+};
+const createServiceForIp = async (data) => {
+    return await api.post(apiUrl + "category-products/services/entrepreneur", data);
 };
 
 const getProductById = async (id) => {
@@ -90,11 +90,14 @@ const deleteProduct = async (id) => {
 const getProductByUserIP = async () => {
     return await api.get(apiUrl + "category-products/entrepreneur/products");
 };
-const getServiceByUser= async () => {
+const getServiceByUserIP= async () => {
     return await api.get(apiUrl + "category-products/services_by_user");
 };
 const getProductCategories= async () => {
     return await api.get(apiUrl + "category-products/product-categories-dropdown");
+};
+const getServiceCategories= async () => {
+    return await api.get(apiUrl + "category-products/service-categories-dropdown");
 };
 
 // Экспорт всех методов
@@ -112,17 +115,19 @@ const UserService = {
     updateIndividualEntrepreneur,
     deleteIndividualEntrepreneur,
     getIndividualEntrepreneurById,
-    createService,
+
     getServiceById,
     updateService,
     deleteService,
     createProductForIp,
+    createServiceForIp,
     getProductById,
     updateProduct,
     deleteProduct,
     getProductByUserIP,
-    getServiceByUser,
-    getProductCategories
+    getServiceByUserIP,
+    getProductCategories,
+    getServiceCategories,
 };
 
 export default UserService;
