@@ -7,6 +7,7 @@ export default function ProfileLayout({ children }) {
   const pathname = usePathname();
 
   const menuItems = [
+    { name: "Профиль", href: "/profile" },
     { name: "Организации", href: "/profile/organizations" },
     { name: "Индивидуальный предприниматель", href: "/profile/ip" },
   ];

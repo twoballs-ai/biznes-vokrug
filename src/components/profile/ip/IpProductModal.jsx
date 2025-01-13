@@ -47,7 +47,7 @@ export default function IpProductModal({
     try {
       if (product) {
         // Редактирование
-        await UserService.updateProduct(product.id, localProduct);
+        await UserService.updateProductIp(product.id, localProduct);
         toast.success("Продукт успешно обновлён");
       } else {
         // Создание

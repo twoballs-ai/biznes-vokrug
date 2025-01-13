@@ -1,36 +1,94 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+
+import OrganizationModal from "./OrganizationModal";
+import ProductModal from "./ProductModal";
+import ServiceModal from "./ServiceModal";
+
+import UserService from "../../../services/user.service";
 
 export default function OrganizationCard({
   organization,
-  products,
-  services,
-  onEditOrg,
-  onDeleteOrg,        // Функция, которая принимает id
-  openProductModal,
-  onDeleteProduct,     // Функция, которая принимает id
-  openServiceModal,
-  onDeleteService,     // Функция, которая принимает id
+  product_categories,
+  service_categories,
+  onRefresh,
 }) {
+  const [orgModalOpen, setOrgModalOpen] = useState(false);
+  const [productModalOpen, setProductModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [serviceModalOpen, setServiceModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
+  // Редактирование организации
+  const openOrgModal = () => {
+    setOrgModalOpen(true);
+  };
+
+  const onOrgSaved = () => {
+    setOrgModalOpen(false);
+    onRefresh();
+  };
 
   // Удаление организации
-  const handleDeleteOrg = () => {
+  const handleDeleteOrg = async () => {
     if (!confirm("Удалить организацию?")) return;
-    // Вызываем колбэк из пропсов, передаём id
-    onDeleteOrg(organization.id);
+    try {
+      await UserService.deleteOrganization(organization.id);
+      toast.success("Организация успешно удалена");
+      onRefresh();
+    } catch (error) {
+      console.error("Ошибка при удалении организации:", error);
+      toast.error("Ошибка при удалении организации.");
+    }
   };
 
-  // Удаление продукта
-  const handleDeleteProduct = (id) => {
+  // Работа с продуктами
+  const openProductModal = (product = null) => {
+    setSelectedProduct(product);
+    setProductModalOpen(true);
+  };
+
+  const onProductSaved = () => {
+    setProductModalOpen(false);
+    onRefresh();
+  };
+
+  const handleDeleteProduct = async (productId) => {
     if (!confirm("Удалить продукт?")) return;
-    onDeleteProduct(id);
+    try {
+      await UserService.deleteProduct(productId);
+      toast.success("Продукт успешно удалён");
+      onRefresh();
+    } catch (error) {
+      console.error("Ошибка при удалении продукта:", error);
+      toast.error("Ошибка при удалении продукта.");
+    }
   };
 
-  // Удаление услуги
-  const handleDeleteService = (id) => {
+  // Работа с услугами
+  const openServiceModal = (service = null) => {
+    setSelectedService(service);
+    setServiceModalOpen(true);
+  };
+
+  const onServiceSaved = () => {
+    setServiceModalOpen(false);
+    onRefresh();
+  };
+
+  const handleDeleteService = async (serviceId) => {
     if (!confirm("Удалить услугу?")) return;
-    onDeleteService(id);
+    try {
+      await UserService.deleteService(serviceId);
+      toast.success("Услуга успешно удалена");
+      onRefresh();
+    } catch (error) {
+      console.error("Ошибка при удалении услуги:", error);
+      toast.error("Ошибка при удалении услуги.");
+    }
   };
 
   return (
@@ -38,10 +96,10 @@ export default function OrganizationCard({
       <h2 className="text-xl font-bold">{organization.name}</h2>
       <p>{organization.description || "Описание отсутствует"}</p>
 
-      {/* Кнопки управления организацией */}
+      {/* Управление организацией */}
       <div className="flex space-x-2 mt-2">
         <button
-          onClick={onEditOrg}
+          onClick={openOrgModal}
           className="bg-yellow-500 text-white px-4 py-1 rounded"
         >
           Редактировать
@@ -56,12 +114,12 @@ export default function OrganizationCard({
 
       {/* Продукты */}
       <h3 className="text-lg font-semibold mt-4">Продукты</h3>
-      {products.length > 0 ? (
-        products.map((product) => (
+      {organization.products?.length > 0 ? (
+        organization.products.map((product) => (
           <div key={product.id} className="mt-2 ml-4 flex items-center">
             <p className="mr-2">{product.name}</p>
             <button
-              onClick={() => openProductModal(organization, product)}
+              onClick={() => openProductModal(product)}
               className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
             >
               ✎
@@ -78,7 +136,7 @@ export default function OrganizationCard({
         <p className="ml-4">Нет продуктов</p>
       )}
       <button
-        onClick={() => openProductModal(organization, null)}
+        onClick={() => openProductModal(null)}
         className="bg-green-500 text-white px-4 py-1 mt-2 rounded"
       >
         Добавить продукт
@@ -86,12 +144,12 @@ export default function OrganizationCard({
 
       {/* Услуги */}
       <h3 className="text-lg font-semibold mt-4">Услуги</h3>
-      {services.length > 0 ? (
-        services.map((service) => (
+      {organization.services?.length > 0 ? (
+        organization.services.map((service) => (
           <div key={service.id} className="mt-2 ml-4 flex items-center">
             <p className="mr-2">{service.name}</p>
             <button
-              onClick={() => openServiceModal(organization, service)}
+              onClick={() => openServiceModal(service)}
               className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
             >
               ✎
@@ -108,11 +166,42 @@ export default function OrganizationCard({
         <p className="ml-4">Нет услуг</p>
       )}
       <button
-        onClick={() => openServiceModal(organization, null)}
+        onClick={() => openServiceModal(null)}
         className="bg-green-500 text-white px-4 py-1 mt-2 rounded"
       >
         Добавить услугу
       </button>
+
+      {/* Модальные окна */}
+      {orgModalOpen && (
+        <OrganizationModal
+          isOpen={orgModalOpen}
+          onClose={() => setOrgModalOpen(false)}
+          organization={organization}
+          onSaved={onOrgSaved}
+        />
+      )}
+      {productModalOpen && (
+        <ProductModal
+          isOpen={productModalOpen}
+          onClose={() => setProductModalOpen(false)}
+          product={selectedProduct}
+         
+          organization={organization}
+          categories={product_categories}
+          onSaved={onProductSaved}
+        />
+      )}
+      {serviceModalOpen && (
+        <ServiceModal
+          isOpen={serviceModalOpen}
+          onClose={() => setServiceModalOpen(false)}
+          service={selectedService}
+          categories={service_categories}
+          organization={organization}
+          onSaved={onServiceSaved}
+        />
+      )}
     </div>
   );
 }

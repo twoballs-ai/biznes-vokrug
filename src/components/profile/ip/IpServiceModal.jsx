@@ -42,7 +42,7 @@ export default function IpServiceModal({
   const handleSave = async () => {
     try {
       if (service) {
-        await UserService.updateService(service.id, localService);
+        await UserService.updateServiceIp(service.id, localService);
         toast.success("Услуга успешно обновлена");
       } else {
         await UserService.createServiceForIp(localService);

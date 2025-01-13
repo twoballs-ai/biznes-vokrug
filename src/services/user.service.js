@@ -60,9 +60,6 @@ const getServiceById = async (id) => {
     return await api.get(apiUrl + `services/${id}`);
 };
 
-const updateService = async (id, data) => {
-    return await api.put(apiUrl + `services/${id}`, data);
-};
 
 const deleteService = async (id) => {
     return await api.delete(apiUrl + `services/${id}`);
@@ -75,15 +72,28 @@ const createProductForIp = async (data) => {
 const createServiceForIp = async (data) => {
     return await api.post(apiUrl + "category-products/services/entrepreneur", data);
 };
-
+const createProductForOrg = async (data) => {
+    return await api.post(apiUrl + "category-products/products/organization", data);
+};
+const createServiceForOrg = async (data) => {
+    return await api.post(apiUrl + "category-products/services/organization", data);
+};
 const getProductById = async (id) => {
     return await api.get(apiUrl + `products/${id}`);
 };
 
-const updateProduct = async (id, data) => {
+const updateProductIp = async (id, data) => {
     return await api.put(apiUrl + `category-products/products/entrepreneur/${id}`, data);
 };
-
+const updateServiceIp = async (id, data) => {
+    return await api.put(apiUrl + `category-products/services/entrepreneur/${id}`, data);
+};
+const updateProductOrg = async (id, data) => {
+    return await api.put(apiUrl + `category-products/products/organization/${id}`, data);
+};
+const updateServiceOrg = async (id, data) => {
+    return await api.put(apiUrl + `category-products/services/organization/${id}`, data);
+};
 const deleteProduct = async (id) => {
     return await api.delete(apiUrl + `products/${id}`);
 };
@@ -91,7 +101,7 @@ const getProductByUserIP = async () => {
     return await api.get(apiUrl + "category-products/entrepreneur/products");
 };
 const getServiceByUserIP= async () => {
-    return await api.get(apiUrl + "category-products/services_by_user");
+    return await api.get(apiUrl + "category-products/entrepreneur/services");
 };
 const getProductCategories= async () => {
     return await api.get(apiUrl + "category-products/product-categories-dropdown");
@@ -99,7 +109,17 @@ const getProductCategories= async () => {
 const getServiceCategories= async () => {
     return await api.get(apiUrl + "category-products/service-categories-dropdown");
 };
+const getServicesWithPagination = async (skip = 0, limit = 100) => {
+    return await api.get(apiUrl + "category-products/services", {
+        params: { skip, limit },
+    });
+};
 
+const getProductsWithPagination = async (skip = 0, limit = 100) => {
+    return await api.get(apiUrl + "category-products/products", {
+        params: { skip, limit },
+    });
+};
 // Экспорт всех методов
 const UserService = {
     getUserDetails,
@@ -115,19 +135,24 @@ const UserService = {
     updateIndividualEntrepreneur,
     deleteIndividualEntrepreneur,
     getIndividualEntrepreneurById,
-
     getServiceById,
-    updateService,
     deleteService,
     createProductForIp,
     createServiceForIp,
+    createProductForOrg,
+    createServiceForOrg,
     getProductById,
-    updateProduct,
+    updateProductIp,
+    updateServiceIp,
     deleteProduct,
     getProductByUserIP,
     getServiceByUserIP,
     getProductCategories,
     getServiceCategories,
+    updateProductOrg,
+    updateServiceOrg,
+    getServicesWithPagination,
+    getProductsWithPagination,
 };
 
 export default UserService;
