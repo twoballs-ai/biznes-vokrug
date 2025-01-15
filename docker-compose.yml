@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - PORT=5000  # Set the Next.js app to use port 4000
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+    labels:
+      - "traefik.enable=true"
+      # HTTPS Router
+      - "traefik.http.routers.biz-vokrug-app.rule=Host(`bizvokrug.ru`)"
+      - "traefik.http.routers.biz-vokrug-app.entryPoints=websecure"
+      - "traefik.http.routers.biz-vokrug-app.tls.certresolver=letsencrypt"
+      - "traefik.http.services.biz-vokrug-app-service.loadbalancer.server.port=5000"
+
+      # HTTP Router for Redirect
+      - "traefik.http.routers.biz-vokrug-app-http.rule=Host(`bizvokrug.ru`)"
+      - "traefik.http.routers.biz-vokrug-app-http.entryPoints=web"
+      - "traefik.http.routers.biz-vokrug-app-http.middlewares=https-redirect"
+
+      # Middleware for HTTPS Redirect
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+    networks:
+      - biznes_vokrug_network  # Подключение только к изолированной сети
+
+networks:
+  biznes_vokrug_network:
+    external: true
