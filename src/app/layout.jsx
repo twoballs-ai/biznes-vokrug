@@ -25,9 +25,6 @@ export default function RootLayout({ children }) {
                 <a href="/about" className="text-sm hover:text-gray-300">
                   О нас
                 </a>
-                <a href="/services" className="text-sm hover:text-gray-300">
-                  Услуги
-                </a>
                 <a href="/contact" className="text-sm hover:text-gray-300">
                   Контакты
                 </a>
