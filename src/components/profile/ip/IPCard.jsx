@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-
+import Slider from "react-slick";
 import UserService from "../../../services/user.service";
 
 // Модальные окна как дочерние компоненты
@@ -18,6 +18,14 @@ export default function IPCard({
   service_categories,
   onRefresh,
 }) {
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
   // Локальные стейты для управления модалками
   const [ipModalOpen, setIpModalOpen] = useState(false);
 
@@ -100,7 +108,7 @@ export default function IPCard({
       toast.error("Ошибка при удалении услуги.");
     }
   };
-
+console.log(products)
   // ─────────────────────────────────────────────────────────────────────────
   // Рендер карточки
   // ─────────────────────────────────────────────────────────────────────────
@@ -137,27 +145,51 @@ export default function IPCard({
 
       {/* Блок с продуктами */}
       <h3 className="text-lg font-semibold mt-4">Продукты</h3>
-      {products?.length > 0 ? (
-        products.map((product) => (
-          <div key={product.id} className="mt-2 ml-4 flex items-center">
-            <p className="mr-2">{product.name}</p>
-            <button
-              onClick={() => openProductModal(product)}
-              className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
-            >
-              ✎
-            </button>
-            <button
-              onClick={() => handleDeleteProduct(product.id)}
-              className="bg-red-500 text-white px-2 py-1 rounded"
-            >
-              ✕
-            </button>
-          </div>
-        ))
+{products?.length > 0 ? (
+  products.map((product) => (
+    <div key={product.id} className="mt-2 ml-4 border p-2 rounded shadow">
+      {/* Слайдер изображений */}
+      {product.images?.length > 0 ? (
+        <div className="w-48">
+          <Slider dots={true} infinite={true} speed={500} slidesToShow={1} slidesToScroll={1}>
+            {product.images.map((img, index) => (
+              <div key={index}>
+                <img src={img} alt={`product-${product.id}-${index}`} className="w-full h-32 object-cover rounded" />
+              </div>
+            ))}
+          </Slider>
+        </div>
       ) : (
-        <p className="ml-4">Нет продуктов</p>
+        <p className="text-sm text-gray-500">Изображения отсутствуют</p>
       )}
+
+      {/* Информация о продукте */}
+      <div className="mt-2">
+        <p className="font-medium">{product.name}</p>
+        <p className="text-sm text-gray-600">{product.category}</p>
+        <p className="text-sm text-gray-600">Цена: {product.price} руб.</p>
+      </div>
+
+      {/* Действия */}
+      <div className="flex space-x-2 mt-2">
+        <button
+          onClick={() => openProductModal(product)}
+          className="bg-yellow-500 text-white px-2 py-1 rounded"
+        >
+          ✎
+        </button>
+        <button
+          onClick={() => handleDeleteProduct(product.id)}
+          className="bg-red-500 text-white px-2 py-1 rounded"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  ))
+) : (
+  <p className="ml-4">Нет продуктов</p>
+)}
       <button
         onClick={() => openProductModal(null)}
         className="bg-green-500 text-white px-4 py-1 mt-2 rounded"

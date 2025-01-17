@@ -67,8 +67,17 @@ const deleteService = async (id) => {
 
 
 const createProductForIp = async (data) => {
-    return await api.post(apiUrl + "category-products/products/entrepreneur", data);
-};
+    console.log(data)
+    return await api.post(apiUrl + "category-products/products/entrepreneur", data, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  };
+  
+  const updateProductIp = async (id, data) => {
+    return await api.put(apiUrl + `category-products/products/entrepreneur/${id}`, data, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  };
 const createServiceForIp = async (data) => {
     return await api.post(apiUrl + "category-products/services/entrepreneur", data);
 };
@@ -82,9 +91,7 @@ const getProductById = async (id) => {
     return await api.get(apiUrl + `products/${id}`);
 };
 
-const updateProductIp = async (id, data) => {
-    return await api.put(apiUrl + `category-products/products/entrepreneur/${id}`, data);
-};
+
 const updateServiceIp = async (id, data) => {
     return await api.put(apiUrl + `category-products/services/entrepreneur/${id}`, data);
 };

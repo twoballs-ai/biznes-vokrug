@@ -1,6 +1,8 @@
 
 import { AuthProvider } from "../contexts/AuthProvider";
 import "./globals.css";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import Header from "@/components/Header";
 import Script from 'next/script';
 import YandexMetrika from '@/components/metrics/YandexMetrika';
