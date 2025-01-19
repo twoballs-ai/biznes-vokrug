@@ -90,23 +90,36 @@ const createProductForIp = async (data) => {
       });
 };
 const createProductForOrg = async (data) => {
-    return await api.post(apiUrl + "category-products/products/organization", data);
+    console.log(data);
+    return await api.post(apiUrl + "category-products/products/organization", data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
 };
+
+const updateProductOrg = async (id, data) => {
+    return await api.put(apiUrl + `category-products/products/organization/${id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+};
+
 const createServiceForOrg = async (data) => {
-    return await api.post(apiUrl + "category-products/services/organization", data);
+    console.log(data);
+    return await api.post(apiUrl + "category-products/services/organization", data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
 };
+
+const updateServiceOrg = async (id, data) => {
+    return await api.put(apiUrl + `category-products/services/organization/${id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+};
+
 const getProductById = async (id) => {
     return await api.get(apiUrl + `products/${id}`);
 };
 
 
-
-const updateProductOrg = async (id, data) => {
-    return await api.put(apiUrl + `category-products/products/organization/${id}`, data);
-};
-const updateServiceOrg = async (id, data) => {
-    return await api.put(apiUrl + `category-products/services/organization/${id}`, data);
-};
 const deleteProduct = async (id) => {
     return await api.delete(apiUrl + `category-products/products/${id}`);
 };

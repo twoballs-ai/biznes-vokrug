@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import CustomModal from "../../CustomModal";
 import UserService from "../../../services/user.service";
 
-export default function ServiceModal({
+export default function OrgServiceModal({
   isOpen,
   onClose,
   service,        // null => создание, объект => редактирование
