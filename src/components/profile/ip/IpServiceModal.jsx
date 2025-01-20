@@ -19,6 +19,8 @@ export default function IpServiceModal({
     category_id: "",
   });
 
+  const [selectedImages, setSelectedImages] = useState([]); // Список загруженных изображений
+
   useEffect(() => {
     if (isOpen) {
       setLocalService(
@@ -36,18 +38,57 @@ export default function IpServiceModal({
               category_id: "",
             }
       );
+      setSelectedImages([]); // Очищаем выбранные изображения при открытии
     }
   }, [isOpen, service]);
 
+  // Обработчик выбора изображений
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    // Фильтруем файлы (ограничиваем размер 5MB и максимум 5 файлов)
+    const validFiles = files.filter((file) => file.size <= 5 * 1024 * 1024);
+
+    if (validFiles.length !== files.length) {
+      toast.error("Некоторые файлы слишком большие (макс. 5MB)");
+    }
+
+    if (validFiles.length + selectedImages.length > 5) {
+      toast.error("Можно загрузить не более 5 изображений");
+      return;
+    }
+
+    setSelectedImages((prev) => [...prev, ...validFiles]);
+  };
+
+  // Удаление изображения перед загрузкой
+  const removeImage = (index) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+  };
+
+  // Обработка сохранения (создание/редактирование)
   const handleSave = async () => {
     try {
+      const formData = new FormData();
+
+      formData.append("name", localService.name);
+      formData.append("description", localService.description);
+      formData.append("category_id", localService.category_id);
+      formData.append("price", localService.price);
+
+      // Добавляем изображения
+      selectedImages.forEach((file) => {
+        formData.append("images", file);
+      });
+
       if (service) {
-        await UserService.updateServiceIp(service.id, localService);
+        await UserService.updateServiceIp(service.id, formData);
         toast.success("Услуга успешно обновлена");
       } else {
-        await UserService.createServiceForIp(localService);
+        await UserService.createServiceForIp(formData);
         toast.success("Услуга успешно создана");
       }
+
       onClose();
       onSaved();
     } catch (error) {
@@ -112,6 +153,37 @@ export default function IpServiceModal({
           }
         />
       </div>
+
+      {/* Выбор файлов */}
+      <div className="mb-3">
+        <label className="block mb-1 font-medium">Фотографии услуги</label>
+        <input
+          type="file"
+          multiple
+          className="w-full p-2 border rounded"
+          onChange={handleImageChange}
+        />
+        
+        {/* Отображение миниатюр */}
+        <div className="mt-2 flex flex-wrap gap-2">
+          {selectedImages.map((file, index) => (
+            <div key={index} className="relative">
+              <img
+                src={URL.createObjectURL(file)}
+                alt="preview"
+                className="w-20 h-20 object-cover rounded"
+              />
+              <button
+                onClick={() => removeImage(index)}
+                className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
+              >
+                X
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="flex justify-end space-x-2">
         <button
           onClick={onClose}

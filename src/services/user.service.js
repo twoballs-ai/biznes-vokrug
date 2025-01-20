@@ -62,46 +62,79 @@ const getServiceById = async (id) => {
 
 
 const deleteService = async (id) => {
-    return await api.delete(apiUrl + `services/${id}`);
+    return await api.delete(apiUrl + `category-products/services/${id}`);
 };
 
 
 const createProductForIp = async (data) => {
-    return await api.post(apiUrl + "category-products/products/entrepreneur", data);
-};
-const createServiceForIp = async (data) => {
-    return await api.post(apiUrl + "category-products/services/entrepreneur", data);
+    console.log(data)
+    return await api.post(apiUrl + "category-products/products/entrepreneur", data, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  };
+  
+  const updateProductIp = async (id, data) => {
+    return await api.put(apiUrl + `category-products/products/entrepreneur/${id}`, data, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  };
+  const createServiceForIp = async (data) => {
+    console.log(data);
+    return await api.post(apiUrl + "category-products/services/entrepreneur", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  };
+  const updateServiceIp = async (id, data) => {
+    return await api.put(apiUrl + `category-products/services/entrepreneur/${id}`, data,{
+        headers: { "Content-Type": "multipart/form-data" }
+      });
 };
 const createProductForOrg = async (data) => {
-    return await api.post(apiUrl + "category-products/products/organization", data);
+    console.log(data);
+    return await api.post(apiUrl + "category-products/products/organization", data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
 };
+
+const updateProductOrg = async (id, data) => {
+    return await api.put(apiUrl + `category-products/products/organization/${id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+};
+
 const createServiceForOrg = async (data) => {
-    return await api.post(apiUrl + "category-products/services/organization", data);
+    console.log(data);
+    return await api.post(apiUrl + "category-products/services/organization", data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
 };
+
+const updateServiceOrg = async (id, data) => {
+    return await api.put(apiUrl + `category-products/services/organization/${id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+};
+
 const getProductById = async (id) => {
     return await api.get(apiUrl + `products/${id}`);
 };
 
-const updateProductIp = async (id, data) => {
-    return await api.put(apiUrl + `category-products/products/entrepreneur/${id}`, data);
-};
-const updateServiceIp = async (id, data) => {
-    return await api.put(apiUrl + `category-products/services/entrepreneur/${id}`, data);
-};
-const updateProductOrg = async (id, data) => {
-    return await api.put(apiUrl + `category-products/products/organization/${id}`, data);
-};
-const updateServiceOrg = async (id, data) => {
-    return await api.put(apiUrl + `category-products/services/organization/${id}`, data);
-};
 const deleteProduct = async (id) => {
-    return await api.delete(apiUrl + `products/${id}`);
+    return await api.delete(apiUrl + `category-products/products/${id}`);
 };
 const getProductByUserIP = async () => {
     return await api.get(apiUrl + "category-products/entrepreneur/products");
 };
+
 const getServiceByUserIP= async () => {
     return await api.get(apiUrl + "category-products/entrepreneur/services");
+};
+const getServiceByUserOrg = async (organizationId) => {
+    return await api.get(`${apiUrl}category-products/organization/services?organization_id=${organizationId}`);
+};
+
+const getProductByUserOrg = async (organizationId) => {
+    return await api.get(`${apiUrl}category-products/organization/products?organization_id=${organizationId}`);
 };
 const getProductCategories= async () => {
     return await api.get(apiUrl + "category-products/product-categories-dropdown");
@@ -117,6 +150,11 @@ const getServicesWithPagination = async (skip = 0, limit = 100) => {
 
 const getProductsWithPagination = async (skip = 0, limit = 100) => {
     return await api.get(apiUrl + "category-products/products", {
+        params: { skip, limit },
+    });
+};
+const getNewsWithPagination = async (skip = 0, limit = 50) => {
+    return await api.get(apiUrl + "news/", {
         params: { skip, limit },
     });
 };
@@ -147,12 +185,15 @@ const UserService = {
     deleteProduct,
     getProductByUserIP,
     getServiceByUserIP,
+    getServiceByUserOrg,
+    getProductByUserOrg,
     getProductCategories,
     getServiceCategories,
     updateProductOrg,
     updateServiceOrg,
     getServicesWithPagination,
     getProductsWithPagination,
+    getNewsWithPagination,
 };
 
 export default UserService;

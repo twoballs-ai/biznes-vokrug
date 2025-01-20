@@ -16,11 +16,15 @@ export default function OrganizationsPage() {
   const [organizations, setOrganizations] = useState([]);
   const [product_categories, setProductCategories] = useState([]);
   const [service_categories, setServiceCategories] = useState([]);
-
+  
+  // Продукты и сервисы для каждой организации
+  const [organizationProducts, setOrganizationProducts] = useState({});
+  const [organizationServices, setOrganizationServices] = useState({});
+  
   // Модалка для создания организации
   const [orgModalOpen, setOrgModalOpen] = useState(false);
 
-  // Загрузка данных
+  // Загрузка данных о организациях
   const fetchOrganizations = async () => {
     try {
       const response = await UserService.getOrganizationsByUser();
@@ -35,6 +39,7 @@ export default function OrganizationsPage() {
     }
   };
 
+  // Загрузка категорий продуктов и услуг
   const fetchCategories = async () => {
     try {
       const productResponse = await UserService.getProductCategories();
@@ -45,18 +50,57 @@ export default function OrganizationsPage() {
       console.error("Ошибка при загрузке категорий продуктов:", error);
       toast.error("Не удалось загрузить категории продуктов.");
     }
-  };  
+  };
 
+  // Загрузка продуктов для конкретной организации
+  const fetchProductsForOrganization = async (organizationId) => {
+    try {
+      const productsResp = await UserService.getProductByUserOrg(organizationId);
+      setOrganizationProducts((prev) => ({
+        ...prev,
+        [organizationId]: productsResp.data.data || [],
+      }));
+    } catch (error) {
+      console.error("Ошибка при загрузке продуктов:", error);
+      toast.error("Ошибка при загрузке продуктов.");
+    }
+  };
+
+  // Загрузка услуг для конкретной организации
+  const fetchServicesForOrganization = async (organizationId) => {
+    try {
+      const servicesResp = await UserService.getServiceByUserOrg(organizationId);
+      setOrganizationServices((prev) => ({
+        ...prev,
+        [organizationId]: servicesResp.data.data || [],
+      }));
+    } catch (error) {
+      console.error("Ошибка при загрузке услуг:", error);
+      toast.error("Ошибка при загрузке услуг.");
+    }
+  };
+
+  // Хук для загрузки данных при монтировании компонента
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchOrganizations(), fetchCategories()])
+    Promise.all([fetchCategories(), fetchOrganizations()])
       .then(() => setLoading(false))
       .catch(() => setLoading(false));
-  }, []);
+  }, []);  // Вызываем только один раз при монтировании компонента
+
+  // Хук для загрузки продуктов и услуг после получения организаций
+  useEffect(() => {
+    if (organizations.length > 0) {
+      organizations.forEach((org) => {
+        fetchProductsForOrganization(org.id);
+        fetchServicesForOrganization(org.id);
+      });
+    }
+  }, [organizations]); // Этот useEffect сработает, когда organizations обновится
 
   // Функция обновления данных (после CRUD)
   const refreshData = async () => {
-    await fetchOrganizations();
+    await Promise.all([fetchOrganizations(), fetchCategories()]);
   };
 
   // Создание новой организации
@@ -82,6 +126,8 @@ export default function OrganizationsPage() {
           <OrganizationCard
             key={org.id}
             organization={org}
+            products={organizationProducts[org.id] || []}  // Продукты для организации
+            services={organizationServices[org.id] || []}  // Услуги для организации
             product_categories={product_categories}
             service_categories={service_categories}
             onRefresh={refreshData}
