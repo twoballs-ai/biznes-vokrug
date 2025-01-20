@@ -168,11 +168,11 @@ export default function HomePage() {
       <div key={item.id} className="p-4 bg-white rounded-lg shadow-md">
         <h3 className="text-xl font-semibold text-blue-600">{item.title}</h3>
         <article
-          className="prose max-w-none mt-2"
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(item.content),
-          }}
-        />
+  className="prose max-w-none mt-2 text-left"
+  dangerouslySetInnerHTML={{
+    __html: DOMPurify.sanitize(item.content),
+  }}
+/>
         <div className="mt-2 text-gray-500">
           <span>Категория: {item.category}</span> |{" "}
           <span>Опубликовано: {new Date(item.created_at).toLocaleDateString()}</span>
