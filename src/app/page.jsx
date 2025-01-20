@@ -1,34 +1,39 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import UserService from '../services/user.service';
+import { useEffect, useState } from "react";
+import UserService from "../services/user.service";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import ImageViewer from "@/components/imageViever";
+import { serverUrl } from "@/shared/config";
 
 export default function HomePage() {
-  const [city, setCity] = useState('Неизвестный город');
+  const [city, setCity] = useState("Неизвестный город");
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    // Читаем cookies вручную
-    const allCookies = document.cookie.split('; ');
-    const cityCookie = allCookies.find((cookie) => cookie.startsWith('city='));
+    const allCookies = document.cookie.split("; ");
+    const cityCookie = allCookies.find((cookie) => cookie.startsWith("city="));
 
     if (cityCookie) {
-      const cityValue = decodeURIComponent(cityCookie.split('=')[1]);
-      setCity(cityValue || 'Неизвестный город');
+      const cityValue = decodeURIComponent(cityCookie.split("=")[1]);
+      setCity(cityValue || "Неизвестный город");
     }
 
-    // Загружаем услуги и продукты из API
     const fetchData = async () => {
       try {
         const [servicesResponse, productsResponse] = await Promise.all([
           UserService.getServicesWithPagination(0, 21),
           UserService.getProductsWithPagination(0, 21),
         ]);
-        setServices(servicesResponse.data.service || []); // Получаем список услуг
-        setProducts(productsResponse.data.products || []); // Получаем список продуктов
+        setServices(servicesResponse.data.service || []);
+        setProducts(productsResponse.data.products || []);
       } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
+        console.error("Ошибка при загрузке данных:", error);
       }
     };
 
@@ -40,67 +45,214 @@ export default function HomePage() {
       <h2 className="text-3xl font-bold mb-4">
         Добро пожаловать на площадку бизнес вокруг.
       </h2>
-      <p className="mb-4">Мы предлагаем лучшие бизнес-решения для вашего успеха.</p>
+      <p className="mb-4">
+        Мы предлагаем лучшие бизнес-решения для вашего успеха.
+      </p>
       <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
         Узнать больше
       </button>
 
-      {/* Список последних услуг */}
-      <div className="text-center">
-        <h3 className="text-2xl font-semibold mb-6">Последние добавленные услуги</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
-            <div key={service.id} className="border p-4 rounded-lg shadow-md">
-              <h4 className="text-xl font-semibold mb-2">{service.name}</h4>
-              <p className="text-gray-600 mb-2">{service.description}</p>
-              <p className="text-gray-800 font-bold mb-2">Цена: {service.price || 'Не указана'}</p>
-              <p className="text-gray-600 mb-2">Категория: {service.category || 'Не указана'}</p>
-              {service.organization && (
-                <p className="text-gray-600 mb-2">Фирма: {service.organization}</p>
-              )}
-              {service.individual_entrepreneur_id && (
-                <p className="text-gray-600 mb-2">
-                  Индивидуальный предприниматель ID: {service.individual_entrepreneur_id}
-                </p>
-              )}
-              <p className="text-gray-500 text-sm">
-                Дата обновления: {service.updated_at ? new Date(service.updated_at).toLocaleString() : 'Не указана'}
-              </p>
-            </div>
-          ))}
+      {/* Разделение на услуги организаций и ИП */}
+      <div className="text-center mt-6">
+        <h3 className="text-2xl font-semibold mb-4">Услуги</h3>
+
+        {/* Услуги организаций */}
+        <h4 className="text-xl font-semibold mt-4 mb-3">Фирмы</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {services
+            .filter((s) => s.organization)
+            .map((service) => (
+              <ServiceCard key={service.id} service={service} />
+            ))}
+        </div>
+
+        {/* Услуги индивидуальных предпринимателей */}
+        <h4 className="text-xl font-semibold mt-6 mb-3">
+          Индивидуальные предприниматели
+        </h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {services
+            .filter((s) => s.individual_entrepreneur_id)
+            .map((service) => (
+              <ServiceCard key={service.id} service={service} />
+            ))}
         </div>
       </div>
 
-      {/* Список последней продукции */}
-      <div className="text-center">
-        <h3 className="text-2xl font-semibold mb-6">Последняя добавленная продукция</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Разделение на товары организаций и ИП */}
+      <div className="text-center mt-6">
+        <h3 className="text-2xl font-semibold mb-4">Продукция</h3>
+
+        {/* Продукция организаций */}
+        <h4 className="text-xl font-semibold mt-4 mb-3">Фирмы</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {products
-            .filter(
-              (product) =>
-                product.organization || product.individual_entrepreneur_id // Отображаем только если хотя бы одно из полей указано
-            )
+            .filter((p) => p.organization)
             .map((product) => (
-              <div key={product.id} className="border p-4 rounded-lg shadow-md">
-                <h4 className="text-xl font-semibold mb-2">{product.name}</h4>
-                <p className="text-gray-600 mb-2">{product.description}</p>
-                <p className="text-gray-800 font-bold mb-2">Цена: {product.price || 'Не указана'}</p>
-                <p className="text-gray-600 mb-2">Категория: {product.category || 'Не указана'}</p>
-                {product.organization && (
-                  <p className="text-gray-600 mb-2">Фирма: {product.organization}</p>
-                )}
-                {product.individual_entrepreneur_id && (
-                  <p className="text-gray-600 mb-2">
-                    Индивидуальный предприниматель ID: {product.individual_entrepreneur_id}
-                  </p>
-                )}
-                <p className="text-gray-500 text-sm">
-                  Дата обновления: {product.updated_at ? new Date(product.updated_at).toLocaleString() : 'Не указана'}
-                </p>
-              </div>
+              <ProductCard key={product.id} product={product} />
+            ))}
+        </div>
+
+        {/* Продукция индивидуальных предпринимателей */}
+        <h4 className="text-xl font-semibold mt-6 mb-3">
+          Индивидуальные предприниматели
+        </h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {products
+            .filter((p) => p.individual_entrepreneur_id)
+            .map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
         </div>
       </div>
     </section>
+  );
+}
+
+/* Компонент карточки услуги */
+function ServiceCard({ service }) {
+  return (
+    <div className="border p-4 rounded-lg shadow-md text-left">
+      {/* Изображения */}
+      {service.images?.length > 0 ? (
+        <div className="mb-2">
+          {service.images.length > 1 ? (
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              spaceBetween={10}
+              slidesPerView={1}
+            >
+              {service.images.map((img, index) => (
+                <SwiperSlide key={index}>
+                  <ImageViewer
+                    src={`${serverUrl}/${img}`}
+                    alt={`service-${service.id}-${index}`}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <ImageViewer
+              src={`${serverUrl}/${service.images[0]}`}
+              alt={`service-${service.id}`}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="mb-2 text-sm text-gray-500 italic">
+          Изображения отсутствуют
+        </div>
+      )}
+
+      {/* Двухколоночный текст */}
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <p>
+          <strong>Название:</strong> {service.name}
+        </p>
+        <p>
+          <strong>Цена:</strong> {service.price || "Не указана"}
+        </p>
+        <p>
+          <strong>Категория:</strong> {service.category || "Не указана"}
+        </p>
+
+        {service.organization ? (
+          <p>
+            <strong>Фирма:</strong> {service.organization}
+          </p>
+        ) : service.individual_entrepreneur ? (
+          <p>
+            <strong>ИП:</strong> {service.individual_entrepreneur}
+          </p>
+        ) : (
+          <p>
+            <strong>Организация:</strong> Не указана
+          </p>
+        )}
+
+        <p>
+          <strong>Обновлено:</strong>{" "}
+          {service.updated_at
+            ? new Date(service.updated_at).toLocaleString()
+            : "Не указана"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* Компонент карточки продукта */
+function ProductCard({ product }) {
+  return (
+    <div className="border p-4 rounded-lg shadow-md text-left">
+      {/* Изображения */}
+      {product.images?.length > 0 ? (
+        <div className="mb-2">
+          {product.images.length > 1 ? (
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              spaceBetween={10}
+              slidesPerView={1}
+            >
+              {product.images.map((img, index) => (
+                <SwiperSlide key={index}>
+                  <ImageViewer
+                    src={`${serverUrl}/${img}`}
+                    alt={`product-${product.id}-${index}`}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <ImageViewer
+              src={`${serverUrl}/${product.images[0]}`}
+              alt={`product-${product.id}`}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="mb-2 text-sm text-gray-500 italic">
+          Изображения отсутствуют
+        </div>
+      )}
+
+      {/* Двухколоночный текст */}
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <p>
+          <strong>Название:</strong> {product.name}
+        </p>
+        <p>
+          <strong>Цена:</strong> {product.price || "Не указана"}
+        </p>
+        <p>
+          <strong>Категория:</strong> {product.category || "Не указана"}
+        </p>
+
+        {product.organization ? (
+          <p>
+            <strong>Фирма:</strong> {product.organization}
+          </p>
+        ) : product.individual_entrepreneur ? (
+          <p>
+            <strong>ИП:</strong> {product.individual_entrepreneur}
+          </p>
+        ) : (
+          <p>
+            <strong>Организация:</strong> Не указана
+          </p>
+        )}
+
+        <p>
+          <strong>Обновлено:</strong>{" "}
+          {product.updated_at
+            ? new Date(product.updated_at).toLocaleString()
+            : "Не указана"}
+        </p>
+      </div>
+    </div>
   );
 }

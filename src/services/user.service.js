@@ -119,15 +119,22 @@ const getProductById = async (id) => {
     return await api.get(apiUrl + `products/${id}`);
 };
 
-
 const deleteProduct = async (id) => {
     return await api.delete(apiUrl + `category-products/products/${id}`);
 };
 const getProductByUserIP = async () => {
     return await api.get(apiUrl + "category-products/entrepreneur/products");
 };
+
 const getServiceByUserIP= async () => {
     return await api.get(apiUrl + "category-products/entrepreneur/services");
+};
+const getServiceByUserOrg = async (organizationId) => {
+    return await api.get(`${apiUrl}category-products/organization/services?organization_id=${organizationId}`);
+};
+
+const getProductByUserOrg = async (organizationId) => {
+    return await api.get(`${apiUrl}category-products/organization/products?organization_id=${organizationId}`);
 };
 const getProductCategories= async () => {
     return await api.get(apiUrl + "category-products/product-categories-dropdown");
@@ -143,6 +150,11 @@ const getServicesWithPagination = async (skip = 0, limit = 100) => {
 
 const getProductsWithPagination = async (skip = 0, limit = 100) => {
     return await api.get(apiUrl + "category-products/products", {
+        params: { skip, limit },
+    });
+};
+const getNewsWithPagination = async (skip = 0, limit = 50) => {
+    return await api.get(apiUrl + "news/", {
         params: { skip, limit },
     });
 };
@@ -173,12 +185,15 @@ const UserService = {
     deleteProduct,
     getProductByUserIP,
     getServiceByUserIP,
+    getServiceByUserOrg,
+    getProductByUserOrg,
     getProductCategories,
     getServiceCategories,
     updateProductOrg,
     updateServiceOrg,
     getServicesWithPagination,
     getProductsWithPagination,
+    getNewsWithPagination,
 };
 
 export default UserService;

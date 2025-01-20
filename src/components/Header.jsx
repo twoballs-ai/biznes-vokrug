@@ -82,37 +82,42 @@ export default function Header() {
 
           {/* Сервисы */}
           <Popover className="relative">
-  <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-gray-900">
-    Сервисы
-    <ChevronDownIcon
-      aria-hidden="true"
-      className="h-5 w-5 text-gray-400"
-    />
-  </PopoverButton>
-  <PopoverPanel className="absolute z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
-    <div className="p-4 max-h-64 overflow-y-auto thin-scrollbar">
-      {serviceCategories.length > 0 ? (
-        serviceCategories.map((category) => (
-          <Link
-            key={category.key}
-            href={`/services/${category.key}`}
-            className="block text-gray-900 hover:bg-gray-50"
-          >
-            {category.value}
-          </Link>
-        ))
-      ) : (
-        <p className="text-sm text-gray-500">Нет категорий сервисов</p>
-      )}
-    </div>
-  </PopoverPanel>
-</Popover>
+            <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-gray-900">
+              Сервисы
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="h-5 w-5 text-gray-400"
+              />
+            </PopoverButton>
+            <PopoverPanel className="absolute z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
+              <div className="p-4 max-h-64 overflow-y-auto thin-scrollbar">
+                {serviceCategories.length > 0 ? (
+                  serviceCategories.map((category) => (
+                    <Link
+                      key={category.key}
+                      href={`/services/${category.key}`}
+                      className="block text-gray-900 hover:bg-gray-50"
+                    >
+                      {category.value}
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">Нет категорий сервисов</p>
+                )}
+              </div>
+            </PopoverPanel>
+          </Popover>
 
           <Link href="/about" className="text-sm font-semibold text-gray-900">
             О нас
           </Link>
           <Link href="/contact" className="text-sm font-semibold text-gray-900">
             Контакты
+          </Link>
+
+          {/* Новый пункт "Новости" */}
+          <Link href="/news" className="text-sm font-semibold text-gray-900">
+            Новости
           </Link>
         </PopoverGroup>
 
