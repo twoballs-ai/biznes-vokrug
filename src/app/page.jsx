@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DOMPurify from "dompurify";
 import UserService from "../services/user.service";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -14,6 +15,11 @@ export default function HomePage() {
   const [city, setCity] = useState("Неизвестный город");
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
+  const [news, setNews] = useState([]);
+  const [loadingNews, setLoadingNews] = useState(true);
+  const [skip, setSkip] = useState(0);
+  const [limit] = useState(50);
+  const [hasMoreNews, setHasMoreNews] = useState(true);
 
   useEffect(() => {
     const allCookies = document.cookie.split("; ");
@@ -37,13 +43,44 @@ export default function HomePage() {
       }
     };
 
+    const fetchNews = async () => {
+      try {
+        const response = await UserService.getNewsWithPagination(skip, limit);
+        if (response.data.status && response.data.data) {
+          const newNews = response.data.data;
+          setNews((prevNews) => {
+            const filteredNews = newNews.filter(
+              (newsItem) => !prevNews.some((prevItem) => prevItem.id === newsItem.id)
+            );
+            return [...prevNews, ...filteredNews];
+          });
+          setSkip(skip + limit);
+          if (newNews.length < limit) {
+            setHasMoreNews(false);
+          }
+        }
+      } catch (error) {
+        console.error("Ошибка загрузки новостей:", error);
+      } finally {
+        setLoadingNews(false);
+      }
+    };
+
     fetchData();
+    fetchNews();
   }, []);
+
+  const loadMoreNews = () => {
+    if (!loadingNews && hasMoreNews) {
+      setLoadingNews(true);
+      setSkip((prev) => prev + limit);
+    }
+  };
 
   return (
     <section className="text-center">
       <h2 className="text-3xl font-bold mb-4">
-        Добро пожаловать на площадку бизнес вокруг.
+        Добро пожаловать на площадку Бизнес Вокруг.
       </h2>
       <p className="mb-4">
         Мы предлагаем лучшие бизнес-решения для вашего успеха.
@@ -53,57 +90,106 @@ export default function HomePage() {
       </button>
 
       {/* Разделение на услуги организаций и ИП */}
-      <div className="text-center mt-6">
-        <h3 className="text-2xl font-semibold mb-4">Услуги</h3>
+      {services.length > 0 && (
+        <div className="text-center mt-6">
+          <h3 className="text-2xl font-semibold mb-4">Услуги</h3>
 
-        {/* Услуги организаций */}
-        <h4 className="text-xl font-semibold mt-4 mb-3">Фирмы</h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {services
-            .filter((s) => s.organization)
-            .map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-        </div>
+          {services.some((s) => s.organization) && (
+            <>
+              <h4 className="text-xl font-semibold mt-4 mb-3">Фирмы</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {services
+                  .filter((s) => s.organization)
+                  .map((service) => (
+                    <ServiceCard key={service.id} service={service} />
+                  ))}
+              </div>
+            </>
+          )}
 
-        {/* Услуги индивидуальных предпринимателей */}
-        <h4 className="text-xl font-semibold mt-6 mb-3">
-          Индивидуальные предприниматели
-        </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {services
-            .filter((s) => s.individual_entrepreneur_id)
-            .map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
+          {services.some((s) => s.individual_entrepreneur_id) && (
+            <>
+              <h4 className="text-xl font-semibold mt-6 mb-3">
+                Индивидуальные предприниматели
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {services
+                  .filter((s) => s.individual_entrepreneur_id)
+                  .map((service) => (
+                    <ServiceCard key={service.id} service={service} />
+                  ))}
+              </div>
+            </>
+          )}
         </div>
-      </div>
+      )}
 
       {/* Разделение на товары организаций и ИП */}
+      {products.length > 0 && (
+        <div className="text-center mt-6">
+          <h3 className="text-2xl font-semibold mb-4">Продукция</h3>
+
+          {products.some((p) => p.organization) && (
+            <>
+              <h4 className="text-xl font-semibold mt-4 mb-3">Фирмы</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {products
+                  .filter((p) => p.organization)
+                  .map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+              </div>
+            </>
+          )}
+
+          {products.some((p) => p.individual_entrepreneur_id) && (
+            <>
+              <h4 className="text-xl font-semibold mt-6 mb-3">
+                Индивидуальные предприниматели
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {products
+                  .filter((p) => p.individual_entrepreneur_id)
+                  .map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Новости */}
       <div className="text-center mt-6">
-        <h3 className="text-2xl font-semibold mb-4">Продукция</h3>
-
-        {/* Продукция организаций */}
-        <h4 className="text-xl font-semibold mt-4 mb-3">Фирмы</h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {products
-            .filter((p) => p.organization)
-            .map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        <h3 className="text-2xl font-semibold mb-4">Новости</h3>
+        {loadingNews && <p>Загрузка новостей...</p>}
+        <div className="space-y-6">
+          {news.map((item) => (
+            <div key={item.id} className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold text-blue-600">{item.title}</h3>
+              <div
+                className="text-sm mt-2"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(item.content),
+                }}
+              />
+              <div className="mt-2 text-gray-500">
+                <span>Категория: {item.category}</span> |{" "}
+                <span>Опубликовано: {new Date(item.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+          ))}
         </div>
-
-        {/* Продукция индивидуальных предпринимателей */}
-        <h4 className="text-xl font-semibold mt-6 mb-3">
-          Индивидуальные предприниматели
-        </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {products
-            .filter((p) => p.individual_entrepreneur_id)
-            .map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
+        {hasMoreNews && (
+          <div className="text-center mt-6">
+            <button
+              onClick={loadMoreNews}
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+            >
+              Загрузить еще
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
