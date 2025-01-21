@@ -119,6 +119,9 @@ export default function Header() {
           <Link href="/news" className="text-sm font-semibold text-gray-900">
             Новости
           </Link>
+          <Link href="/articles" className="text-sm font-semibold text-gray-900">
+            Статьи
+          </Link>
         </PopoverGroup>
 
         {/* Блок вход/выход */}

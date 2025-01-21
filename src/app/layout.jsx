@@ -7,7 +7,7 @@ import Script from "next/script";
 import YandexMetrika from "@/components/metrics/YandexMetrika";
 import { Suspense } from "react";
 import { FaTelegramPlane, FaVk } from "react-icons/fa"; // FontAwesome Icons
-
+import Link from "next/link";
 export default function RootLayout({ children }) {
   return (
     <AuthProvider>
@@ -25,12 +25,17 @@ export default function RootLayout({ children }) {
                 </p>
               </div>
               <div className="flex space-x-4 mb-4 md:mb-0">
-                <a href="/about" className="text-sm hover:text-gray-300">
-                  О нас
-                </a>
-                <a href="/contact" className="text-sm hover:text-gray-300">
-                  Контакты
-                </a>
+              <Link href="/about" className="text-sm font-semibold text-white-900">
+            О нас
+          </Link>
+          <Link href="/contact" className="text-sm font-semibold text-white-900">
+            Контакты
+          </Link>
+
+          {/* Новый пункт "Новости" */}
+          <Link href="/news" className="text-sm font-semibold text-white-900">
+            Новости
+          </Link>
               </div>
               <div className="flex space-x-4">
             

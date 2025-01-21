@@ -10,6 +10,8 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import ImageViewer from "@/components/imageViever";
 import { serverUrl } from "@/shared/config";
+import CurrencyWidget from "@/components/widgets/CurrencyWidget";
+import CryptoWidget from "@/components/widgets/CryptoWidget";
 
 export default function HomePage() {
   const [city, setCity] = useState("Неизвестный город");
@@ -78,16 +80,19 @@ export default function HomePage() {
   };
 
   return (
-    <section className="text-center">
-      <h2 className="text-3xl font-bold mb-4">
-        Добро пожаловать на площадку Бизнес Вокруг.
-      </h2>
-      <p className="mb-4">
-        Мы предлагаем лучшие бизнес-решения для вашего успеха.
-      </p>
-      <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-        Узнать больше
-      </button>
+    <section className="container mx-auto flex flex-col-reverse md:flex-row gap-6">
+    <div className="w-full md:w-5/6">
+        <h2 className="text-3xl font-bold mb-4 text-center">
+          Добро пожаловать на площадку Бизнес Вокруг.
+        </h2>
+        <p className="mb-4 text-center">
+          Мы предлагаем лучшие бизнес-решения для вашего успеха.
+        </p>
+        <div className="text-center mb-6">
+          <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+            Узнать больше
+          </button>
+        </div>
 
       {/* Разделение на услуги организаций и ИП */}
       {services.length > 0 && (
@@ -190,7 +195,14 @@ export default function HomePage() {
       </button>
     </div>
   )}
-</div>;
+</div>
+</div>
+
+{/* ПРАВАЯ ЧАСТЬ: Виджеты */}
+<div className="w-full md:w-1/6 space-y-4">
+  <CurrencyWidget />
+  <CryptoWidget />
+</div>
     </section>
   );
 }
