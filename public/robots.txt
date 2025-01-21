@@ -1,0 +1,21 @@
+# *
+User-agent: *
+Allow: /
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+
+# Yandex
+User-agent: Yandex
+Allow: /
+
+# Host
+Host: https://bizvokrug.ru
+
+# Sitemaps
+Sitemap: https://bizvokrug.ru/sitemap.xml
