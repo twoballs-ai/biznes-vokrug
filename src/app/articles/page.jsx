@@ -1,28 +1,29 @@
 "use client";
 import { useState, useEffect } from "react";
-import DOMPurify from "dompurify"; // Импортируем библиотеку
+import Link from "next/link";
+import DOMPurify from "dompurify";
 
 import UserService from "@/services/user.service";
 
 export default function ArticlesPage() {
-  const [articles, setArticles] = useState([]);
+  const [articlesComponent, setArticlesComponent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [skip, setSkip] = useState(0);
-  const [limit] = useState(50); // Лимит статей
-  const [hasMore, setHasMore] = useState(true); // Есть ли еще статьи
+  const [limit] = useState(10); // Уменьшаем лимит для быстрого тестирования
+  const [hasMore, setHasMore] = useState(true);
 
   const fetchArticles = async () => {
     try {
       const response = await UserService.getArticlesWithPagination(skip, limit);
       if (response.data.status && response.data.data) {
         const newArticles = response.data.data;
-        setArticles((prevArticles) => {
+        setArticlesComponent((prevArticles) => {
           const filteredArticles = newArticles.filter(
             (article) => !prevArticles.some((prevItem) => prevItem.id === article.id)
           );
           return [...prevArticles, ...filteredArticles];
         });
-        setSkip(skip + limit);
+        setSkip((prevSkip) => prevSkip + limit);
         if (newArticles.length < limit) {
           setHasMore(false);
         }
@@ -36,13 +37,18 @@ export default function ArticlesPage() {
 
   useEffect(() => {
     fetchArticles();
-  }, []); // Загружаем статьи при первом рендере
+  }, []);
 
   const loadMore = () => {
     if (!loading && hasMore) {
       setLoading(true);
       fetchArticles();
     }
+  };
+
+  const truncateText = (text, length = 200) => {
+    if (!text) return "";
+    return text.length > length ? text.substring(0, length) + "..." : text;
   };
 
   return (
@@ -52,19 +58,30 @@ export default function ArticlesPage() {
       {loading && <p>Загрузка статей...</p>}
 
       <div className="space-y-6">
-        {articles.map((item) => (
+        {articlesComponent.map((item) => (
           <div key={item.id} className="p-4 bg-white rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-green-600">{item.title}</h3>
-            {/* Используем dompurify для очистки HTML */}
-            <div
-              className="text-sm mt-2"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(item.content),
-              }}
-            />
+            <h3 className="text-xl font-semibold text-blue-600">
+              <Link href={`/articles/${item.id}`} className="hover:underline">
+                {item.title}
+              </Link>
+            </h3>
+            {/* Обрезанный текст статьи */}
+            <p className="mt-2 text-gray-700">
+              {truncateText(DOMPurify.sanitize(item.content), 200)}
+            </p>
+
             <div className="mt-2 text-gray-500">
               <span>Категория: {item.category}</span> |{" "}
               <span>Опубликовано: {new Date(item.created_at).toLocaleDateString()}</span>
+            </div>
+
+            {/* Кнопка "Читать далее" */}
+            <div className="mt-3">
+              <Link href={`/articles/${item.id}`}>
+                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                  Читать далее
+                </button>
+              </Link>
             </div>
           </div>
         ))}
@@ -74,7 +91,7 @@ export default function ArticlesPage() {
         <div className="text-center mt-6">
           <button
             onClick={loadMore}
-            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
+            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
           >
             Загрузить еще
           </button>

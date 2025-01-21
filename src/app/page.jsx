@@ -102,15 +102,6 @@ export default function HomePage() {
     }
   }, [activeTab]);
 
-  useEffect(() => {
-    if (activeTab === "news") {
-      fetchNews();
-    } else {
-      fetchArticles();
-    }
-  }, [activeTab]);
-
-
 
 
   return (
@@ -228,11 +219,13 @@ export default function HomePage() {
           {loading ? (
             <p>Загрузка...</p>
           ) : activeTab === "news" ? (
-            <ContentBlock data={news} hasMore={hasMore} loadMore={fetchNews} />
+            <ContentBlock data={news} hasMore={hasMoreNews} loadMore={fetchNews} />
           ) : (
-            <ContentBlock data={articles} hasMore={hasMore} loadMore={fetchArticles} />
+            <ContentBlock data={articles} hasMore={hasMoreArticles} loadMore={fetchArticles} />
           )}
         </div>
+
+
       </div>
 
       {/* ПРАВАЯ ЧАСТЬ: Виджеты */}

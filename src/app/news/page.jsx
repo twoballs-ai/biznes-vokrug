@@ -1,32 +1,31 @@
 "use client";
 import { useState, useEffect } from "react";
-import DOMPurify from "dompurify"; // Импортируем библиотеку
+import Link from "next/link";
+import DOMPurify from "dompurify";
 
 import UserService from "@/services/user.service";
 
 export default function NewsPage() {
-  const [news, setNews] = useState([]);
+  const [newsComponent, setNewsComponent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [skip, setSkip] = useState(0);
-  const [limit] = useState(50); // Вы можете изменить лимит
-  const [hasMore, setHasMore] = useState(true); // Для отслеживания, есть ли еще новости
+  const [limit] = useState(10); // Уменьшаем лимит
+  const [hasMore, setHasMore] = useState(true);
 
   const fetchNews = async () => {
     try {
       const response = await UserService.getNewsWithPagination(skip, limit);
       if (response.data.status && response.data.data) {
-        // Фильтруем новости, чтобы избежать дублирования
         const newNews = response.data.data;
-        setNews((prevNews) => {
-          // Отфильтровываем новости, которые уже есть в текущем списке
+        setNewsComponent((prevNews) => {
           const filteredNews = newNews.filter(
             (newsItem) => !prevNews.some((prevItem) => prevItem.id === newsItem.id)
           );
-          return [...prevNews, ...filteredNews]; // Добавляем только уникальные новости
+          return [...prevNews, ...filteredNews];
         });
-        setSkip(skip + limit); // Обновляем сдвиг для следующего запроса
+        setSkip((prevSkip) => prevSkip + limit);
         if (newNews.length < limit) {
-          setHasMore(false); // Если новостей меньше, чем лимит, больше нет новостей
+          setHasMore(false);
         }
       }
     } catch (error) {
@@ -38,13 +37,18 @@ export default function NewsPage() {
 
   useEffect(() => {
     fetchNews();
-  }, []); // Загружаем новости при первом рендере
+  }, []);
 
   const loadMore = () => {
     if (!loading && hasMore) {
       setLoading(true);
       fetchNews();
     }
+  };
+
+  const truncateText = (text, length = 200) => {
+    if (!text) return "";
+    return text.length > length ? text.substring(0, length) + "..." : text;
   };
 
   return (
@@ -54,19 +58,30 @@ export default function NewsPage() {
       {loading && <p>Загрузка новостей...</p>}
 
       <div className="space-y-6">
-        {news.map((item) => (
+        {newsComponent.map((item) => (
           <div key={item.id} className="p-4 bg-white rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-blue-600">{item.title}</h3>
-            {/* Используем dompurify для очистки HTML */}
-            <div
-              className="text-sm mt-2"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(item.content), // Очищаем HTML
-              }}
-            />
+            <h3 className="text-xl font-semibold text-blue-600">
+              <Link href={`/news/${item.id}`} className="hover:underline">
+                {item.title}
+              </Link>
+            </h3>
+            {/* Отображаем укороченный текст */}
+            <p className="mt-2 text-gray-700">
+              {truncateText(DOMPurify.sanitize(item.content), 200)}
+            </p>
+
             <div className="mt-2 text-gray-500">
               <span>Категория: {item.category}</span> |{" "}
               <span>Опубликовано: {new Date(item.created_at).toLocaleDateString()}</span>
+            </div>
+
+            {/* Кнопка "Читать далее" */}
+            <div className="mt-3">
+              <Link href={`/news/${item.id}`}>
+                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                  Читать далее
+                </button>
+              </Link>
             </div>
           </div>
         ))}
