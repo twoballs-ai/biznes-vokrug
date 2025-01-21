@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
       <html lang="ru">
         <body className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
           <Header />
-          <main className="container mx-auto py-8 flex-1">{children}</main>
+          <main className="container mx-auto pt-32 py-8 flex-1">{children}</main>
           <footer className="bg-blue-600 text-white py-8 mt-auto">
             <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
@@ -35,6 +35,9 @@ export default function RootLayout({ children }) {
           {/* Новый пункт "Новости" */}
           <Link href="/news" className="text-sm font-semibold text-white-900">
             Новости
+          </Link>
+          <Link href="/articles" className="text-sm font-semibold text-white-900">
+            Статьи
           </Link>
               </div>
               <div className="flex space-x-4">
