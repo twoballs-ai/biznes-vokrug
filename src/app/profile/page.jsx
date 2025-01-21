@@ -90,11 +90,11 @@ export default function ProfilePage() {
 
 
   if (loading) {
-    return <div>Загрузка...</div>;
+    return <div>Загрузка...</div>
   }
 
   if (!user) {
-    return <div>Не удалось загрузить данные пользователя</div>;
+    return <div>Не удалось загрузить данные пользователя</div>
   }
 
   return (

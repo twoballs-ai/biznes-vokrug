@@ -158,6 +158,18 @@ const getNewsWithPagination = async (skip = 0, limit = 50) => {
         params: { skip, limit },
     });
 };
+const getArticlesWithPagination = async (skip = 0, limit = 50) => {
+    return await api.get(apiUrl + "articles/", {
+        params: { skip, limit },
+    });
+};
+const getNewsById = async (id) => {
+    return await api.get(apiUrl + `news/${id}`);
+};
+
+const getArticleById = async (id) => {
+    return await api.get(apiUrl + `articles/${id}`);
+};
 // Экспорт всех методов
 const UserService = {
     getUserDetails,
@@ -194,6 +206,9 @@ const UserService = {
     getServicesWithPagination,
     getProductsWithPagination,
     getNewsWithPagination,
+    getArticlesWithPagination,
+    getNewsById,
+    getArticleById,
 };
 
 export default UserService;

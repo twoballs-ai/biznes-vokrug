@@ -5,44 +5,44 @@ import DOMPurify from "dompurify";
 
 import UserService from "@/services/user.service";
 
-export default function NewsPage() {
-  const [newsComponent, setNewsComponent] = useState([]);
+export default function ArticlesPage() {
+  const [articlesComponent, setArticlesComponent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [skip, setSkip] = useState(0);
-  const [limit] = useState(10); // Уменьшаем лимит
+  const [limit] = useState(10); // Уменьшаем лимит для быстрого тестирования
   const [hasMore, setHasMore] = useState(true);
 
-  const fetchNews = async () => {
+  const fetchArticles = async () => {
     try {
-      const response = await UserService.getNewsWithPagination(skip, limit);
+      const response = await UserService.getArticlesWithPagination(skip, limit);
       if (response.data.status && response.data.data) {
-        const newNews = response.data.data;
-        setNewsComponent((prevNews) => {
-          const filteredNews = newNews.filter(
-            (newsItem) => !prevNews.some((prevItem) => prevItem.id === newsItem.id)
+        const newArticles = response.data.data;
+        setArticlesComponent((prevArticles) => {
+          const filteredArticles = newArticles.filter(
+            (article) => !prevArticles.some((prevItem) => prevItem.id === article.id)
           );
-          return [...prevNews, ...filteredNews];
+          return [...prevArticles, ...filteredArticles];
         });
         setSkip((prevSkip) => prevSkip + limit);
-        if (newNews.length < limit) {
+        if (newArticles.length < limit) {
           setHasMore(false);
         }
       }
     } catch (error) {
-      console.error("Ошибка загрузки новостей:", error);
+      console.error("Ошибка загрузки статей:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNews();
+    fetchArticles();
   }, []);
 
   const loadMore = () => {
     if (!loading && hasMore) {
       setLoading(true);
-      fetchNews();
+      fetchArticles();
     }
   };
 
@@ -53,19 +53,19 @@ export default function NewsPage() {
 
   return (
     <section className="p-6 bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold mb-6 text-blue-700">Новости</h2>
+      <h2 className="text-3xl font-bold mb-6 text-blue-700">Статьи</h2>
 
-      {loading && <p>Загрузка новостей...</p>}
+      {loading && <p>Загрузка статей...</p>}
 
       <div className="space-y-6">
-        {newsComponent.map((item) => (
+        {articlesComponent.map((item) => (
           <div key={item.id} className="p-4 bg-white rounded-lg shadow-md">
             <h3 className="text-xl font-semibold text-blue-600">
-              <Link href={`/news/${item.id}`} className="hover:underline">
+              <Link href={`/articles/${item.id}`} className="hover:underline">
                 {item.title}
               </Link>
             </h3>
-            {/* Отображаем укороченный текст */}
+            {/* Обрезанный текст статьи */}
             <p className="mt-2 text-gray-700">
               {truncateText(DOMPurify.sanitize(item.content), 200)}
             </p>
@@ -77,7 +77,7 @@ export default function NewsPage() {
 
             {/* Кнопка "Читать далее" */}
             <div className="mt-3">
-              <Link href={`/news/${item.id}`}>
+              <Link href={`/articles/${item.id}`}>
                 <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
                   Читать далее
                 </button>
