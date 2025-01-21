@@ -47,7 +47,7 @@ export default function ArticlesPage() {
 
   return (
     <section className="p-6 bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold mb-6 text-green-700">Статьи</h2>
+      <h2 className="text-3xl font-bold mb-6 text-blue-700">Статьи</h2>
 
       {loading && <p>Загрузка статей...</p>}
 
