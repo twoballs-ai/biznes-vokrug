@@ -23,9 +23,12 @@ export default function HomePage() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("news"); 
-  const [skip, setSkip] = useState(0);
-  const [limit] = useState(50);
-  const [hasMore, setHasMore] = useState(true);
+  const [newsSkip, setNewsSkip] = useState(0);
+  const [articlesSkip, setArticlesSkip] = useState(0);
+
+  const limit = 10;
+  const [hasMoreNews, setHasMoreNews] = useState(true);
+  const [hasMoreArticles, setHasMoreArticles] = useState(true);
 
   useEffect(() => {
     const allCookies = document.cookie.split("; ");
@@ -57,18 +60,13 @@ export default function HomePage() {
 
   const fetchNews = async () => {
     try {
-      const response = await UserService.getNewsWithPagination(skip, limit);
+      const response = await UserService.getNewsWithPagination(newsSkip, limit);
       if (response.data.status && response.data.data) {
         const newNews = response.data.data;
-        setNews((prevNews) => {
-          const filteredNews = newNews.filter(
-            (newsItem) => !prevNews.some((prevItem) => prevItem.id === newsItem.id)
-          );
-          return [...prevNews, ...filteredNews];
-        });
-        setSkip(skip + limit);
+        setNews((prev) => [...prev, ...newNews]);
+        setNewsSkip((prevSkip) => prevSkip + limit);
         if (newNews.length < limit) {
-          setHasMore(false);
+          setHasMoreNews(false);
         }
       }
     } catch (error) {
@@ -80,18 +78,13 @@ export default function HomePage() {
 
   const fetchArticles = async () => {
     try {
-      const response = await UserService.getArticlesWithPagination(skip, limit);
+      const response = await UserService.getArticlesWithPagination(articlesSkip, limit);
       if (response.data.status && response.data.data) {
         const newArticles = response.data.data;
-        setArticles((prevArticles) => {
-          const filteredArticles = newArticles.filter(
-            (article) => !prevArticles.some((prevItem) => prevItem.id === article.id)
-          );
-          return [...prevArticles, ...filteredArticles];
-        });
-        setSkip(skip + limit);
+        setArticles((prev) => [...prev, ...newArticles]);
+        setArticlesSkip((prevSkip) => prevSkip + limit);
         if (newArticles.length < limit) {
-          setHasMore(false);
+          setHasMoreArticles(false);
         }
       }
     } catch (error) {
@@ -100,6 +93,14 @@ export default function HomePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (activeTab === "news" && news.length === 0) {
+      fetchNews();
+    } else if (activeTab === "articles" && articles.length === 0) {
+      fetchArticles();
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab === "news") {
@@ -200,27 +201,27 @@ export default function HomePage() {
         {/* Новости */}
        {/* Вкладки (Tabs) */}
        <div className="flex justify-center border-b border-gray-300 mb-6 mt-4">
-  <button
-    className={`relative px-4 py-2 text-lg font-semibold transition-all duration-300 ${
-      activeTab === "news"
-        ? "text-blue-600 after:absolute after:left-0 after:bottom-0 after:w-full after:h-[3px] after:bg-blue-600 after:transition-all after:duration-300"
-        : "text-gray-500 hover:text-blue-600"
-    }`}
-    onClick={() => setActiveTab("news")}
-  >
-    Новости
-  </button>
-  <button
-    className={`relative px-4 py-2 text-lg font-semibold transition-all duration-300 ${
-      activeTab === "articles"
-        ? "text-blue-600 after:absolute after:left-0 after:bottom-0 after:w-full after:h-[3px] after:bg-blue-600 after:transition-all after:duration-300"
-        : "text-gray-500 hover:text-blue-600"
-    }`}
-    onClick={() => setActiveTab("articles")}
-  >
-    Статьи
-  </button>
-</div>
+          <button
+            className={`relative px-4 py-2 text-lg font-semibold transition-all duration-300 ${
+              activeTab === "news"
+                ? "text-blue-600 after:absolute after:left-0 after:bottom-0 after:w-full after:h-[3px] after:bg-blue-600"
+                : "text-gray-500 hover:text-blue-600"
+            }`}
+            onClick={() => setActiveTab("news")}
+          >
+            Новости
+          </button>
+          <button
+            className={`relative px-4 py-2 text-lg font-semibold transition-all duration-300 ${
+              activeTab === "articles"
+                ? "text-blue-600 after:absolute after:left-0 after:bottom-0 after:w-full after:h-[3px] after:bg-blue-600"
+                : "text-gray-500 hover:text-blue-600"
+            }`}
+            onClick={() => setActiveTab("articles")}
+          >
+            Статьи
+          </button>
+        </div>
 
         {/* Контент вкладок */}
         <div className="text-center mt-6">
