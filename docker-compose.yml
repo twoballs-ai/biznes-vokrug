@@ -7,27 +7,36 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      - PORT=5000  # Set the Next.js app to use port 4000
+      - PORT=5000  # Убедись, что Next.js работает на этом порту
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
     labels:
       - "traefik.enable=true"
-      # HTTPS Router
+
+      # 🔹 HTTPS Router
       - "traefik.http.routers.biz-vokrug-app.rule=Host(`bizvokrug.ru`)"
       - "traefik.http.routers.biz-vokrug-app.entryPoints=websecure"
       - "traefik.http.routers.biz-vokrug-app.tls.certresolver=letsencrypt"
       - "traefik.http.services.biz-vokrug-app-service.loadbalancer.server.port=5000"
 
-      # HTTP Router for Redirect
+      # 🔹 HTTP Router для редиректа на HTTPS
       - "traefik.http.routers.biz-vokrug-app-http.rule=Host(`bizvokrug.ru`)"
       - "traefik.http.routers.biz-vokrug-app-http.entryPoints=web"
       - "traefik.http.routers.biz-vokrug-app-http.middlewares=https-redirect"
 
-      # Middleware for HTTPS Redirect
+      # 🔹 Middleware для автоматического редиректа на HTTPS
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+
+      # 🔹 Дополнительно: Редирект www → без www
+      - "traefik.http.routers.www-to-nonwww.rule=Host(`www.bizvokrug.ru`)"
+      - "traefik.http.routers.www-to-nonwww.entryPoints=web"
+      - "traefik.http.routers.www-to-nonwww.middlewares=redirect-to-root"
+      - "traefik.http.middlewares.redirect-to-root.redirectregex.regex=^https?://www.(.*)"
+      - "traefik.http.middlewares.redirect-to-root.redirectregex.replacement=https://$1"
+
     networks:
-      - biznes_vokrug_network  # Подключение только к изолированной сети
+      - biznes_vokrug_network  # Подключение к сети
 
 networks:
   biznes_vokrug_network:
