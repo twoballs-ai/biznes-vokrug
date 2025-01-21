@@ -170,6 +170,14 @@ const getNewsById = async (id) => {
 const getArticleById = async (id) => {
     return await api.get(apiUrl + `articles/${id}`);
 };
+const getNewsCategories = async () => {
+    return await api.get(apiUrl + `categories`);
+};
+const createPostBlog = async (data) => {
+    return await api.post(apiUrl + "blogs/create", data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+};
 // Экспорт всех методов
 const UserService = {
     getUserDetails,
@@ -209,6 +217,8 @@ const UserService = {
     getArticlesWithPagination,
     getNewsById,
     getArticleById,
+    createPostBlog,
+    getNewsCategories,
 };
 
 export default UserService;
