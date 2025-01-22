@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css"; // Подключаем стили Toastify
 import UserService from "@/services/user.service";
 import TinyMCEEditor from "../TinyMCEEditor";
 
 export default function FormCreateBlog() {
   const router = useRouter();
+  const [postId, setPostId] = useState(null); // ID статьи (если редактируем)
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [categories, setCategories] = useState([]); // Категории загружаем из API
+  const [categories, setCategories] = useState([]);
   const [content, setContent] = useState("<article></article>");
   const [loading, setLoading] = useState(false);
 
@@ -38,16 +39,27 @@ export default function FormCreateBlog() {
       formData.append("category_id", category);
       formData.append("content", content);
 
-      const response = await UserService.createPostBlog(formData);
-
-      if (response.status !== 200) {
-        throw new Error("Ошибка при создании статьи");
+      let response;
+      if (postId) {
+        // Если у нас есть ID статьи → обновляем
+        response = await UserService.updatePostBlog(postId, formData);
+      } else {
+        // Если ID нет → создаём новую
+        response = await UserService.createPostBlog(formData);
       }
 
-      toast.success("Статья успешно создана!");
-      router.push("/blog"); // Перенаправление на список статей
+      if (response.status !== 200) {
+        throw new Error("Ошибка при сохранении статьи");
+      }
+
+      toast.success(postId ? "Статья обновлена!" : "Статья создана!");
+
+      // Если создавали новую статью → сохраняем её ID
+      if (!postId) {
+        setPostId(response.data.id);
+      }
     } catch (err) {
-      toast.error(err.message || "Ошибка создания статьи");
+      toast.error(err.message || "Ошибка сохранения статьи");
     }
 
     setLoading(false);
@@ -55,7 +67,9 @@ export default function FormCreateBlog() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Создать статью</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-center">
+        {postId ? "Редактировать статью" : "Создать статью"}
+      </h2>
 
       <input
         type="text"
@@ -87,7 +101,7 @@ export default function FormCreateBlog() {
         disabled={loading}
         className="w-full bg-blue-600 text-white py-3 mt-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
       >
-        {loading ? "Создаём..." : "Создать"}
+        {loading ? "Сохраняем..." : postId ? "Обновить" : "Создать"}
       </button>
     </form>
   );

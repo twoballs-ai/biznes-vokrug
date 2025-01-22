@@ -178,6 +178,11 @@ const createPostBlog = async (data) => {
         headers: { "Content-Type": "multipart/form-data" }
     });
 };
+const updatePostBlog = async (blogId, data) => {
+    return await api.put(`${apiUrl}blogs/${blogId}`, data, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+};
 // Экспорт всех методов
 const UserService = {
     getUserDetails,
@@ -219,6 +224,7 @@ const UserService = {
     getArticleById,
     createPostBlog,
     getNewsCategories,
+    updatePostBlog
 };
 
 export default UserService;

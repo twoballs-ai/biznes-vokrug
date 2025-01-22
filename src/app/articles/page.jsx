@@ -67,7 +67,7 @@ export default function ArticlesPage() {
             </h3>
             {/* Обрезанный текст статьи */}
             <p className="mt-2 text-gray-700">
-              {truncateText(DOMPurify.sanitize(item.content), 200)}
+              {truncateText(item.content, 200)}
             </p>
 
             <div className="mt-2 text-gray-500">
