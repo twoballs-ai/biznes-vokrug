@@ -10,7 +10,7 @@ export default function FormCreateBlog() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
-  const [categories, setCategories] = useState([]);
+
   const [content, setContent] = useState("<article></article>");
   const [loading, setLoading] = useState(false);
   const [postId, setPostId] = useState(null); // ID статьи

@@ -178,14 +178,8 @@ const createPostBlog = async (data) => {
         headers: { "Content-Type": "multipart/form-data" }
     });
 };
-<<<<<<< HEAD
-
-const updatePostBlog = async (blogId, data) => {
-    return await api.put(`${apiUrl}blogs/update/${blogId}`, data, {
-=======
 const updatePostBlog = async (blogId, data) => {
     return await api.put(`${apiUrl}blogs/${blogId}`, data, {
->>>>>>> origin/main
         headers: { "Content-Type": "multipart/form-data" }
     });
 };
@@ -230,11 +224,7 @@ const UserService = {
     getArticleById,
     createPostBlog,
     getNewsCategories,
-<<<<<<< HEAD
     updatePostBlog,
-=======
-    updatePostBlog
->>>>>>> origin/main
 };
 
 export default UserService;
