@@ -10,6 +10,7 @@ export default function FormCreateBlog() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [content, setContent] = useState("<article></article>");
   const [loading, setLoading] = useState(false);
   const [postId, setPostId] = useState(null); // ID статьи
@@ -56,6 +57,7 @@ export default function FormCreateBlog() {
 
       if (response.status !== 200) {
         throw new Error("Ошибка при сохранении статьи");
+        throw new Error("Ошибка при сохранении статьи");
       }
 
       toast.success(postId ? "Статья обновлена!" : "Статья успешно создана!");
@@ -76,6 +78,9 @@ export default function FormCreateBlog() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold mb-4 text-center">
+        {postId ? "Редактировать статью" : "Создать статью"}
+      </h2>
       <h2 className="text-2xl font-semibold mb-4 text-center">
         {postId ? "Редактировать статью" : "Создать статью"}
       </h2>
