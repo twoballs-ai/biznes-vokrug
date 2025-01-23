@@ -46,11 +46,20 @@ export default function NewsPage() {
     }
   };
 
-  const truncateText = (text, length = 200) => {
-    if (!text) return "";
-    return text.length > length ? text.substring(0, length) + "..." : text;
+  const truncateText = (html, length = 200) => {
+    if (!html) return "";
+  
+    // Очистка HTML от небезопасных тегов
+    const sanitizedHTML = DOMPurify.sanitize(html);
+  
+    // Создаем временный элемент для получения чистого текста
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = sanitizedHTML;
+    
+    const textContent = tempElement.textContent || tempElement.innerText || "";
+  
+    return textContent.length > length ? textContent.substring(0, length) + "..." : textContent;
   };
-
   return (
     <section className="p-6 bg-gray-100 rounded-lg shadow-md">
       <h2 className="text-3xl font-bold mb-6 text-blue-700">Новости</h2>
@@ -67,7 +76,7 @@ export default function NewsPage() {
             </h3>
             {/* Отображаем укороченный текст */}
             <p className="mt-2 text-gray-700">
-              {truncateText(DOMPurify.sanitize(item.content), 200)}
+              {truncateText(item.content, 200)}
             </p>
 
             <div className="mt-2 text-gray-500">
