@@ -1,19 +1,28 @@
 "use client";
-import { useEffect, useState } from "react";
+
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import DOMPurify from "dompurify";
+import { useEffect, useState } from "react";
 
 import UserService from "@/services/user.service";
+import AuthService from "@/services/auth.service"; 
 
 export default function NewsDetailPage() {
   const { id } = useParams();
   const [newsItem, setNewsItem] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false); // Состояние для проверки админа
 
   useEffect(() => {
+    const user = AuthService.getCurrentUser();
+    if (user && user.is_admin) {
+      setIsAdmin(true);
+    }
+
     if (!id) return;
-    const fetchNews = async () => {
+
+    async function fetchNews() {
       try {
         const response = await UserService.getNewsById(id);
         if (response.data.status) {
@@ -24,7 +33,7 @@ export default function NewsDetailPage() {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchNews();
   }, [id]);
@@ -47,10 +56,19 @@ export default function NewsDetailPage() {
         <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(newsItem.content) }} />
       </section>
 
-      <footer className="mt-6">
+      <footer className="mt-6 flex gap-4">
         <Link href="/news" className="text-blue-600 hover:underline">
-          ← Вернуться к новостям
+          ← Вернуться к статьям
         </Link>
+
+        {isAdmin && (
+          <Link
+            href={`/news/edit/${id}`}
+            className="text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            ✏️ Редактировать
+          </Link>
+        )}
       </footer>
     </article>
   );

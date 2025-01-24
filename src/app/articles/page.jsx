@@ -4,13 +4,25 @@ import Link from "next/link";
 import DOMPurify from "dompurify";
 
 import UserService from "@/services/user.service";
+import AuthService from "@/services/auth.service"; // Импортируем AuthService
 
 export default function ArticlesPage() {
   const [articlesComponent, setArticlesComponent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [skip, setSkip] = useState(0);
-  const [limit] = useState(10); // Уменьшаем лимит для быстрого тестирования
+  const [limit] = useState(10);
   const [hasMore, setHasMore] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false); // Состояние для проверки админа
+
+  useEffect(() => {
+    const user = AuthService.getCurrentUser();
+    console.log(user);
+    if (user && user.is_admin) {
+      setIsAdmin(true);
+    }
+
+    fetchArticles();
+  }, []);
 
   const fetchArticles = async () => {
     try {
@@ -35,10 +47,6 @@ export default function ArticlesPage() {
     }
   };
 
-  useEffect(() => {
-    fetchArticles();
-  }, []);
-
   const loadMore = () => {
     if (!loading && hasMore) {
       setLoading(true);
@@ -46,14 +54,30 @@ export default function ArticlesPage() {
     }
   };
 
-  const truncateText = (text, length = 200) => {
-    if (!text) return "";
-    return text.length > length ? text.substring(0, length) + "..." : text;
+  const truncateText = (html, length = 200) => {
+    if (!html) return "";
+
+    const sanitizedHTML = DOMPurify.sanitize(html);
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = sanitizedHTML;
+    
+    const textContent = tempElement.textContent || tempElement.innerText || "";
+  
+    return textContent.length > length ? textContent.substring(0, length) + "..." : textContent;
   };
 
   return (
     <section className="p-6 bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold mb-6 text-blue-700">Статьи</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-blue-700">Статьи</h2>
+        {isAdmin && (
+          <Link href="/articles/create">
+            <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+              + Добавить статью
+            </button>
+          </Link>
+        )}
+      </div>
 
       {loading && <p>Загрузка статей...</p>}
 
@@ -65,7 +89,6 @@ export default function ArticlesPage() {
                 {item.title}
               </Link>
             </h3>
-            {/* Обрезанный текст статьи */}
             <p className="mt-2 text-gray-700">
               {truncateText(item.content, 200)}
             </p>
@@ -75,7 +98,6 @@ export default function ArticlesPage() {
               <span>Опубликовано: {new Date(item.created_at).toLocaleDateString()}</span>
             </div>
 
-            {/* Кнопка "Читать далее" */}
             <div className="mt-3">
               <Link href={`/articles/${item.id}`}>
                 <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">

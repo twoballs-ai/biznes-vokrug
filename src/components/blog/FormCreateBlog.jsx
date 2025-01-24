@@ -6,16 +6,15 @@ import "react-toastify/dist/ReactToastify.css";
 import UserService from "@/services/user.service";
 import TinyMCEEditor from "../TinyMCEEditor";
 
-export default function FormCreateBlog() {
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
+export default function FormCreateBlog({ postId: propPostId = null, initialData = null }) {
+  const [postId, setPostId] = useState(propPostId || null);
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [category, setCategory] = useState(initialData?.category_id || "");
   const [categories, setCategories] = useState([]);
-
-  const [content, setContent] = useState("<article></article>");
+  const [content, setContent] = useState(initialData?.content || "<article></article>");
   const [loading, setLoading] = useState(false);
-  const [postId, setPostId] = useState(null); // ID статьи
-  const [images, setImages] = useState([]); // Хранение загруженных файлов
-  const [tags, setTags] = useState(""); // Теги через запятую
+  const [images, setImages] = useState([]);
+  const [tags, setTags] = useState(initialData?.tags || "");
 
   useEffect(() => {
     async function loadCategories() {
@@ -30,6 +29,15 @@ export default function FormCreateBlog() {
     loadCategories();
   }, []);
 
+  useEffect(() => {
+    if (initialData?.content) {
+      setContent(initialData.content);
+    }
+    if (initialData?.images) {
+      setImages(initialData.images);
+    }
+  }, [initialData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -39,14 +47,11 @@ export default function FormCreateBlog() {
       formData.append("title", title);
       formData.append("category_id", category);
       formData.append("content", content);
+      formData.append("tags", tags);
 
-      // Добавляем изображения
       images.forEach((image) => {
         formData.append("images", image);
       });
-
-      // Добавляем теги в виде строки, разделённой запятыми
-      formData.append("tags", tags);
 
       let response;
       if (postId) {
@@ -57,13 +62,12 @@ export default function FormCreateBlog() {
 
       if (response.status !== 200) {
         throw new Error("Ошибка при сохранении статьи");
-        throw new Error("Ошибка при сохранении статьи");
       }
 
       toast.success(postId ? "Статья обновлена!" : "Статья успешно создана!");
 
       if (!postId) {
-        setPostId(response.data.id);
+        setPostId(response.data.data.id);
       }
     } catch (err) {
       toast.error(err.message || "Ошибка при сохранении статьи");
@@ -73,7 +77,7 @@ export default function FormCreateBlog() {
   };
 
   const handleImageChange = (e) => {
-    setImages([...e.target.files]); // Добавляем выбранные файлы в state
+    setImages([...e.target.files]);
   };
 
   return (
@@ -81,10 +85,6 @@ export default function FormCreateBlog() {
       <h2 className="text-2xl font-semibold mb-4 text-center">
         {postId ? "Редактировать статью" : "Создать статью"}
       </h2>
-      <h2 className="text-2xl font-semibold mb-4 text-center">
-        {postId ? "Редактировать статью" : "Создать статью"}
-      </h2>
-
       <input
         type="text"
         placeholder="Заголовок"
@@ -108,7 +108,6 @@ export default function FormCreateBlog() {
         ))}
       </select>
 
-      {/* Поле для тегов */}
       <input
         type="text"
         placeholder="Теги (через запятую)"
@@ -117,7 +116,6 @@ export default function FormCreateBlog() {
         className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* Поле загрузки изображений */}
       <input
         type="file"
         multiple
