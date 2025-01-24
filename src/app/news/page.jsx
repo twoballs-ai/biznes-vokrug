@@ -4,13 +4,26 @@ import Link from "next/link";
 import DOMPurify from "dompurify";
 
 import UserService from "@/services/user.service";
+import AuthService from "@/services/auth.service"; // Импортируем AuthService
 
 export default function NewsPage() {
   const [newsComponent, setNewsComponent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [skip, setSkip] = useState(0);
-  const [limit] = useState(10); // Уменьшаем лимит
+  const [limit] = useState(10);
   const [hasMore, setHasMore] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false); // Состояние для проверки админа
+
+  useEffect(() => {
+    const user = AuthService.getCurrentUser();
+    console.log(user)
+    if (user && user.is_admin) {
+      
+      setIsAdmin(true);
+    }
+
+    fetchNews();
+  }, []);
 
   const fetchNews = async () => {
     try {
@@ -35,10 +48,6 @@ export default function NewsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchNews();
-  }, []);
-
   const loadMore = () => {
     if (!loading && hasMore) {
       setLoading(true);
@@ -46,14 +55,30 @@ export default function NewsPage() {
     }
   };
 
-  const truncateText = (text, length = 200) => {
-    if (!text) return "";
-    return text.length > length ? text.substring(0, length) + "..." : text;
+  const truncateText = (html, length = 200) => {
+    if (!html) return "";
+
+    const sanitizedHTML = DOMPurify.sanitize(html);
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = sanitizedHTML;
+    
+    const textContent = tempElement.textContent || tempElement.innerText || "";
+  
+    return textContent.length > length ? textContent.substring(0, length) + "..." : textContent;
   };
 
   return (
     <section className="p-6 bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold mb-6 text-blue-700">Новости</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-blue-700">Новости</h2>
+        {isAdmin && (
+          <Link href="/news/create">
+            <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+              + Добавить новость
+            </button>
+          </Link>
+        )}
+      </div>
 
       {loading && <p>Загрузка новостей...</p>}
 
@@ -65,9 +90,8 @@ export default function NewsPage() {
                 {item.title}
               </Link>
             </h3>
-            {/* Отображаем укороченный текст */}
             <p className="mt-2 text-gray-700">
-              {truncateText(DOMPurify.sanitize(item.content), 200)}
+              {truncateText(item.content, 200)}
             </p>
 
             <div className="mt-2 text-gray-500">
@@ -75,7 +99,6 @@ export default function NewsPage() {
               <span>Опубликовано: {new Date(item.created_at).toLocaleDateString()}</span>
             </div>
 
-            {/* Кнопка "Читать далее" */}
             <div className="mt-3">
               <Link href={`/news/${item.id}`}>
                 <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">

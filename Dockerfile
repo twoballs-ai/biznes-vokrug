@@ -18,7 +18,7 @@ COPY . .
 
 # Build the Next.js application
 RUN npm run build
-
+RUN npm run sitemap
 # Use a smaller Node.js image for serving the application
 FROM node:18-alpine
 
