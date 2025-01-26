@@ -13,8 +13,8 @@ export default function FormCreateBlog({ postId: propPostId = null, initialData 
   const [categories, setCategories] = useState([]);
   const [content, setContent] = useState(initialData?.content || "<article></article>");
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState([]);
   const [tags, setTags] = useState(initialData?.tags || "");
+  const [images, setImages] = useState([]); // Храним файлы в памяти
 
   useEffect(() => {
     async function loadCategories() {
@@ -30,56 +30,56 @@ export default function FormCreateBlog({ postId: propPostId = null, initialData 
   }, []);
 
   useEffect(() => {
-    if (initialData?.content) {
-      setContent(initialData.content);
-    }
-    if (initialData?.images) {
-      setImages(initialData.images);
-    }
+    if (initialData?.content) setContent(initialData.content);
   }, [initialData]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const [titleImage, setTitleImage] = useState(null);
 
-    try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("category_id", category);
-      formData.append("content", content);
-      formData.append("tags", tags);
+const handleTitleImageChange = (e) => {
+  setTitleImage(e.target.files[0]);
+};
 
-      images.forEach((image) => {
-        formData.append("images", image);
-      });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-      let response;
-      if (postId) {
-        response = await UserService.updatePostBlog(postId, formData);
-      } else {
-        response = await UserService.createPostBlog(formData);
-      }
+  try {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category_id", category);
+    formData.append("content", content);
+    formData.append("tags", tags);
 
-      if (response.status !== 200) {
-        throw new Error("Ошибка при сохранении статьи");
-      }
-
-      toast.success(postId ? "Статья обновлена!" : "Статья успешно создана!");
-
-      if (!postId) {
-        setPostId(response.data.data.id);
-      }
-    } catch (err) {
-      toast.error(err.message || "Ошибка при сохранении статьи");
+    if (titleImage) {
+      formData.append("title_image", titleImage);
     }
 
-    setLoading(false);
-  };
+    images.forEach((image) => {
+      formData.append("files", image);
+    });
 
-  const handleImageChange = (e) => {
-    setImages([...e.target.files]);
-  };
+    let response;
+    if (postId) {
+      response = await UserService.updatePostBlog(postId, formData);
+    } else {
+      response = await UserService.createPostBlog(formData);
+    }
 
+    if (response.status !== 200) {
+      throw new Error("Ошибка при сохранении статьи");
+    }
+
+    toast.success(postId ? "Статья обновлена!" : "Статья успешно создана!");
+
+    if (!postId) {
+      setPostId(response.data.data.id);
+    }
+  } catch (err) {
+    toast.error(err.message || "Ошибка при сохранении статьи");
+  }
+
+  setLoading(false);
+};
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4 text-center">
@@ -115,16 +115,13 @@ export default function FormCreateBlog({ postId: propPostId = null, initialData 
         onChange={(e) => setTags(e.target.value)}
         className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
       />
-
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleImageChange}
-        className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-      />
-
-      <TinyMCEEditor content={content} setContent={setContent} />
+<input
+  type="file"
+  accept="image/*"
+  onChange={handleTitleImageChange}
+  className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+/>
+      <TinyMCEEditor content={content} setContent={setContent} setImages={setImages} />
 
       <button
         type="submit"
