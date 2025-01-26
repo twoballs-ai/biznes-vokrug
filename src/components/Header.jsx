@@ -115,7 +115,12 @@ export default function Header() {
               </div>
             </PopoverPanel>
           </Popover>
-
+          <Link href="/news" className="text-sm font-semibold text-gray-900">
+            Новости
+          </Link>
+          <Link href="/articles" className="text-sm font-semibold text-gray-900">
+            Статьи
+          </Link>
           <Link href="/about" className="text-sm font-semibold text-gray-900">
             О нас
           </Link>
@@ -123,16 +128,12 @@ export default function Header() {
             Контакты
           </Link>
 
-          <Link href="/news" className="text-sm font-semibold text-gray-900">
-            Новости
-          </Link>
-          <Link href="/articles" className="text-sm font-semibold text-gray-900">
-            Статьи
-          </Link>
         </PopoverGroup>
 
         {/* Блок вход/выход */}
-        <UserMenuNoSSR />
+        <div className="hidden lg:block">
+  <UserMenuNoSSR />
+</div>
       </nav>
 
       {/* Мобильное меню */}
@@ -154,7 +155,9 @@ export default function Header() {
             >
               <XMarkIcon className="h-8 w-8" />
             </button>
-
+            <div className="border-b pb-4 flex justify-center">
+        <UserMenuNoSSR />
+      </div>
             <Link href="/" className="block text-sm font-semibold text-gray-900" onClick={closeMobileMenu}>
               Главная
             </Link>
