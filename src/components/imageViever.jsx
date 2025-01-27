@@ -11,6 +11,7 @@ const ImageViewer = ({ src, alt }) => {
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
         className="object-cover object-center"
         priority
+        unoptimized
       />
     </div>
   );
