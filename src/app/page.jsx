@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import DOMPurify from "dompurify";
 import UserService from "../services/user.service";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -29,6 +29,7 @@ export default function HomePage() {
   const limit = 10;
   const [hasMoreNews, setHasMoreNews] = useState(true);
   const [hasMoreArticles, setHasMoreArticles] = useState(true);
+  const firstLoad = useRef({ news: false, articles: false });
 
   useEffect(() => {
     const allCookies = document.cookie.split("; ");
@@ -65,9 +66,7 @@ export default function HomePage() {
         const newNews = response.data.data;
         setNews((prev) => [...prev, ...newNews]);
         setNewsSkip((prevSkip) => prevSkip + limit);
-        if (newNews.length < limit) {
-          setHasMoreNews(false);
-        }
+        if (newNews.length < limit) setHasMoreNews(false);
       }
     } catch (error) {
       console.error("Ошибка загрузки новостей:", error);
@@ -76,6 +75,7 @@ export default function HomePage() {
     }
   };
 
+  // 📌 Функция загрузки статей
   const fetchArticles = async () => {
     try {
       const response = await UserService.getArticlesWithPagination(articlesSkip, limit);
@@ -83,9 +83,7 @@ export default function HomePage() {
         const newArticles = response.data.data;
         setArticles((prev) => [...prev, ...newArticles]);
         setArticlesSkip((prevSkip) => prevSkip + limit);
-        if (newArticles.length < limit) {
-          setHasMoreArticles(false);
-        }
+        if (newArticles.length < limit) setHasMoreArticles(false);
       }
     } catch (error) {
       console.error("Ошибка загрузки статей:", error);
@@ -94,10 +92,13 @@ export default function HomePage() {
     }
   };
 
+  // 📌 useEffect для загрузки новостей и статей
   useEffect(() => {
-    if (activeTab === "news" && news.length === 0) {
+    if (activeTab === "news" && news.length === 0 && !firstLoad.current.news) {
+      firstLoad.current.news = true;
       fetchNews();
-    } else if (activeTab === "articles" && articles.length === 0) {
+    } else if (activeTab === "articles" && articles.length === 0 && !firstLoad.current.articles) {
+      firstLoad.current.articles = true;
       fetchArticles();
     }
   }, [activeTab]);

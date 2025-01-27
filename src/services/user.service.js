@@ -183,6 +183,12 @@ const updatePostBlog = async (blogId, data) => {
         headers: { "Content-Type": "multipart/form-data" }
     });
 };
+const getWidgetsCrypto = async () => {
+    return await api.get(apiUrl + "crypto/");
+};
+const getWidgetCurrency = async () => {
+    return await api.get(apiUrl + "currency/");
+};
 // Экспорт всех методов
 const UserService = {
     getUserDetails,
@@ -225,6 +231,8 @@ const UserService = {
     createPostBlog,
     getNewsCategories,
     updatePostBlog,
+    getWidgetsCrypto,
+    getWidgetCurrency
 };
 
 export default UserService;

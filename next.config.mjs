@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "api.bizvokrug.ru",  // Основной API
-      "79.174.94.29"        // Сервер изображений
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "api.bizvokrug.ru",
+        pathname: "/api/category-products/downloader/**",
+      },
     ],
+    domains: ["api.bizvokrug.ru"],
   },
 };
 

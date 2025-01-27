@@ -1,24 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import UserService from "@/services/user.service";
 
 export default function CryptoWidget() {
-  const [cryptoRates, setCryptoRates] = useState([]);
+  const [cryptoRates, setCryptoRates] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCryptoRates = async () => {
       try {
-        const response = await axios.get(
-          "https://api.coingecko.com/api/v3/simple/price",
-          {
-            params: {
-              ids: "bitcoin,ethereum,binancecoin,solana,cardano",
-              vs_currencies: "usd",
-            },
-          }
-        );
+        const response = await UserService.getWidgetsCrypto();
         setCryptoRates(response.data);
       } catch (error) {
         console.error("Ошибка загрузки курсов криптовалют:", error);
@@ -28,8 +20,7 @@ export default function CryptoWidget() {
     };
 
     fetchCryptoRates();
-    // Обновлять данные каждую минуту
-    const interval = setInterval(fetchCryptoRates, 60 * 1000);
+    const interval = setInterval(fetchCryptoRates, 60 * 1000); // Обновление раз в минуту
     return () => clearInterval(interval);
   }, []);
 
