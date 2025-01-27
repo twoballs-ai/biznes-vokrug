@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["127.0.0.1", "localhost"], // Разрешаем Next.js загружать изображения с этих доменов
+    domains: [
+      "api.bizvokrug.ru",  // Основной API
+      "79.174.94.29"        // Сервер изображений
+    ],
   },
 };
 
