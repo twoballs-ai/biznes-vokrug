@@ -192,6 +192,7 @@ export default function HomePage() {
 
         {/* Новости */}
        {/* Вкладки (Tabs) */}
+       <div className="w-full max-w-4xl mx-auto">
        <div className="flex justify-center border-b border-gray-300 mb-6 mt-4">
           <button
             className={`relative px-4 py-2 text-lg font-semibold transition-all duration-300 ${
@@ -225,7 +226,7 @@ export default function HomePage() {
             <ContentBlock data={articles} hasMore={hasMoreArticles} loadMore={fetchArticles} />
           )}
         </div>
-
+        </div>
 
       </div>
 

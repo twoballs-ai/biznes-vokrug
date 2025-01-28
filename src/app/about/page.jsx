@@ -4,6 +4,10 @@ import {
   GlobeAltIcon,
   UserGroupIcon
 } from "@heroicons/react/24/outline";
+export const metadata = {
+  title: "О нас | Бизнес Вокруг",
+  description: "Узнайте больше о компании Бизнес Вокруг и её деятельности.",
+};
 
 export default function AboutPage() {
   return (
