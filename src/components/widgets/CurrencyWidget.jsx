@@ -1,21 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 
+import UserService from "@/services/user.service";
 export default function CurrencyWidget() {
-  const [rates, setRates] = useState({ USD: null, EUR: null, CNY: null });
+  const [rates, setRates] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const response = await axios.get("https://www.cbr-xml-daily.ru/daily_json.js");
-        setRates({
-          USD: response.data.Valute.USD.Value,
-          EUR: response.data.Valute.EUR.Value,
-          CNY: response.data.Valute.CNY.Value,
-        });
+        const response = await UserService.getWidgetCurrency();
+        setRates(response.data);
       } catch (error) {
         console.error("Ошибка загрузки курса валют:", error);
       } finally {
@@ -24,8 +20,7 @@ export default function CurrencyWidget() {
     };
 
     fetchRates();
-    // Обновлять курс каждые 6 часов
-    const interval = setInterval(fetchRates, 6 * 60 * 60 * 1000);
+    const interval = setInterval(fetchRates, 6 * 60 * 60 * 1000); // Обновление каждые 6 часов
     return () => clearInterval(interval);
   }, []);
 
@@ -37,15 +32,15 @@ export default function CurrencyWidget() {
       ) : (
         <ul className="text-sm space-y-2">
           <li className="flex justify-between">
-            <span className="text-gray-300">USD:</span> 
+            <span className="text-gray-300">USD:</span>
             <strong>{rates.USD} ₽</strong>
           </li>
           <li className="flex justify-between">
-            <span className="text-gray-300">EUR:</span> 
+            <span className="text-gray-300">EUR:</span>
             <strong>{rates.EUR} ₽</strong>
           </li>
           <li className="flex justify-between">
-            <span className="text-gray-300">CNY:</span> 
+            <span className="text-gray-300">CNY:</span>
             <strong>{rates.CNY} ₽</strong>
           </li>
         </ul>

@@ -18,7 +18,7 @@ export default function EditNewsPage() {
 
     async function fetchNews() {
       try {
-        const response = await UserService.getArticleById(postId);
+        const response = await UserService.getNewsById(postId);
         if (response.data.status) {
           setNewsItem(response.data.data);
         }
