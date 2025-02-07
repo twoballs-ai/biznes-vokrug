@@ -30,7 +30,8 @@ export default function HomePage() {
   const [hasMoreNews, setHasMoreNews] = useState(true);
   const [hasMoreArticles, setHasMoreArticles] = useState(true);
   const firstLoad = useRef({ news: false, articles: false });
-
+console.log(services)
+console.log(products)
   useEffect(() => {
     const allCookies = document.cookie.split("; ");
     const cityCookie = allCookies.find((cookie) => cookie.startsWith("city="));

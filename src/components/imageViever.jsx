@@ -1,9 +1,13 @@
 import React from "react";
 import Image from "next/image";
 
-const ImageViewer = ({ src, alt }) => {
+const ImageViewer = ({ src, alt, className }) => {
   return (
-    <div className="relative w-full h-0 pb-[60%] overflow-hidden rounded-md shadow-md">
+    <div
+      className={`relative overflow-hidden rounded-md shadow-md ${
+        className || "w-full h-0 pb-[60%]"
+      }`}
+    >
       <Image
         src={src}
         alt={alt}

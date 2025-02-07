@@ -57,7 +57,7 @@ const getIndividualEntrepreneurById = async (id) => {
 // Сервисы для услуг
 
 const getServiceById = async (id) => {
-    return await api.get(apiUrl + `services/${id}`);
+    return await api.get(apiUrl + `category-products/service/${id}`);
 };
 
 
@@ -116,7 +116,7 @@ const updateServiceOrg = async (id, data) => {
 };
 
 const getProductById = async (id) => {
-    return await api.get(apiUrl + `products/${id}`);
+    return await api.get(apiUrl + `category-products/product/${id}`);
 };
 
 const deleteProduct = async (id) => {
