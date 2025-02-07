@@ -20,7 +20,7 @@ export default function CryptoWidget() {
     };
 
     fetchCryptoRates();
-    const interval = setInterval(fetchCryptoRates, 60 * 1000); // Обновление раз в минуту
+    const interval = setInterval(fetchCryptoRates, 6 * 60 * 60 * 1000); // Обновление раз в минуту
     return () => clearInterval(interval);
   }, []);
 
