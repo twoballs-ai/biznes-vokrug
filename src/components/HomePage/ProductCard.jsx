@@ -57,6 +57,9 @@ export default function ProductCard({ product }) {
             <strong>Обновлено:</strong>{" "}
             {product.updated_at ? new Date(product.updated_at).toLocaleString() : "Не указана"}
           </p>
+          <p>
+            <strong>Телефон:</strong> {service.individual_entrepreneur_phone || "Не указан"}
+          </p>
         </div>
       </div>
     </Link>

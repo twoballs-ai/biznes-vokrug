@@ -88,6 +88,10 @@ export default function ServiceDetails({ params }) {
             ? new Date(service.updated_at).toLocaleString()
             : "Не указана"}
         </p>
+        <p>
+          <strong>Телефон:</strong>{" "}
+          {service.individual_entrepreneur_phone || "Не указан"}
+        </p>
         <div className="mt-4">
           <strong>Описание:</strong>
           <div

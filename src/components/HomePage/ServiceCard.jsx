@@ -46,9 +46,15 @@ export default function ServiceCard({ service }) {
 
         {/* Информация */}
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <p><strong>Название:</strong> {service.name}</p>
-          <p><strong>Цена:</strong> {service.price || "Не указана"}</p>
-          <p><strong>Категория:</strong> {service.category || "Не указана"}</p>
+          <p>
+            <strong>Название:</strong> {service.name}
+          </p>
+          <p>
+            <strong>Цена:</strong> {service.price || "Не указана"}
+          </p>
+          <p>
+            <strong>Категория:</strong> {service.category || "Не указана"}
+          </p>
           <p>
             <strong>{service.organization ? "Фирма" : "ИП"}:</strong>{" "}
             {service.organization || service.individual_entrepreneur || "Не указана"}
@@ -56,6 +62,9 @@ export default function ServiceCard({ service }) {
           <p>
             <strong>Обновлено:</strong>{" "}
             {service.updated_at ? new Date(service.updated_at).toLocaleString() : "Не указана"}
+          </p>
+          <p>
+            <strong>Телефон:</strong> {service.individual_entrepreneur_phone || "Не указан"}
           </p>
         </div>
       </div>
