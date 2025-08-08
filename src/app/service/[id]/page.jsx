@@ -39,63 +39,66 @@ export default function ServiceDetails({ params }) {
     fetchService();
   }, [id]);
 
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
-  if (!service) return <div>Услуга не найдена.</div>;
+  if (loading) return <div className="text-center">Загрузка...</div>;
+  if (error) return <div className="text-center text-red-600">Ошибка: {error}</div>;
+  if (!service) return <div className="text-center">Услуга не найдена.</div>;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-white shadow-lg rounded-lg">
       <button
-        className="mb-4 text-blue-600 hover:underline"
+        className="mb-6 text-blue-600 hover:underline"
         onClick={() => router.back()}
       >
         ← Назад
       </button>
-      <h1 className="text-3xl font-bold mb-4">{service.name}</h1>
+      <h1 className="text-3xl font-semibold text-gray-900 mb-4">{service.name}</h1>
 
       {/* Изображения */}
-      {service.images?.length > 0 ? (
-        <div className="mb-4">
-          {service.images.map((img, index) => (
-            <div key={index} className="mb-2">
-<ImageViewer
-  src={`${serverUrl}/${img}`}
-  alt={`Изображение ${index + 1} услуги`}
-  className="w-32 h-32" // 8rem x 8rem (примерно 128x128 пикселей)
-/>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-500 italic mb-4">Изображения отсутствуют</p>
-      )}
+      <div className="mb-6">
+        {service.images?.length > 0 ? (
+          <div className="flex flex-wrap gap-4">
+            {service.images.map((img, index) => (
+              <div key={index} className="w-32 h-32 overflow-hidden rounded-lg shadow-md">
+                <ImageViewer
+                  src={`${serverUrl}/${img}`}
+                  alt={`Изображение ${index + 1} услуги`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 italic">Изображения отсутствуют</p>
+        )}
+      </div>
 
       {/* Информация */}
-      <div className="text-lg">
-        <p>
-          <strong>Цена:</strong> {service.price || "Не указана"}
+      <div className="space-y-4">
+        <p className="text-lg">
+          <strong>Цена:</strong> {service.price ? `${service.price} ₽` : "Не указана"}
         </p>
-        <p>
+        <p className="text-lg">
           <strong>Категория:</strong> {service.category || "Не указана"}
         </p>
-        <p>
-          <strong>{service.organization ? "Фирма" : "ИП"}:</strong>{" "}
-          {service.organization || service.individual_entrepreneur || "Не указана"}
+        <p className="text-lg">
+          <strong>Регион:</strong> {service.region || "Не указан"}
         </p>
-        <p>
+        <p className="text-lg">
+          <strong>Город:</strong> {service.city || "Не указан"}
+        </p>
+        <p className="text-lg">
           <strong>Обновлено:</strong>{" "}
-          {service.updated_at
-            ? new Date(service.updated_at).toLocaleString()
-            : "Не указана"}
+          {service.updated_at ? new Date(service.updated_at).toLocaleString() : "Не указано"}
         </p>
-        <p>
+
+        <p className="text-lg">
           <strong>Телефон:</strong>{" "}
-          {service.individual_entrepreneur_phone || "Не указан"}
+          {service.show_phone ? service.user_phone : "Не указан"}
         </p>
         <div className="mt-4">
           <strong>Описание:</strong>
           <div
-            className="mt-2"
+            className="mt-2 text-gray-700"
             dangerouslySetInnerHTML={{
               __html: service.description || "Нет описания",
             }}
