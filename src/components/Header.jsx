@@ -54,7 +54,7 @@ export default function Header() {
         {/* Логотип */}
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
-            <h1 className="text-2xl font-bold text-blue-600">Бизнес Вокруг</h1>
+            <h1 className="text-2xl font-bold text-blue-600">toise.ru</h1>
           </Link>
         </div>
 
@@ -72,68 +72,10 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Горизонтальное меню (Только для больших экранов) */}
-        <PopoverGroup className="hidden lg:flex lg:gap-x-12">
-          {/* Продукты */}
-          <Popover className="relative">
-            <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-gray-900">
-              Продукты
-              <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-            </PopoverButton>
-            <PopoverPanel className="absolute z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
-              <div className="p-4 max-h-64 overflow-y-auto thin-scrollbar">
-                {productCategories.map((category) => (
-                  <Link
-                    key={category.key}
-                    href={`/products/${category.key}`}
-                    className="block text-gray-900 hover:bg-gray-50"
-                  >
-                    {category.value}
-                  </Link>
-                ))}
-              </div>
-            </PopoverPanel>
-          </Popover>
-
-          {/* Сервисы */}
-          <Popover className="relative">
-            <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-gray-900">
-              Сервисы
-              <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-            </PopoverButton>
-            <PopoverPanel className="absolute z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
-              <div className="p-4 max-h-64 overflow-y-auto thin-scrollbar">
-                {serviceCategories.map((category) => (
-                  <Link
-                    key={category.key}
-                    href={`/services/${category.key}`}
-                    className="block text-gray-900 hover:bg-gray-50"
-                  >
-                    {category.value}
-                  </Link>
-                ))}
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <Link href="/news" className="text-sm font-semibold text-gray-900">
-            Новости
-          </Link>
-          <Link href="/articles" className="text-sm font-semibold text-gray-900">
-            Статьи
-          </Link>
-          <Link href="/about" className="text-sm font-semibold text-gray-900">
-            О нас
-          </Link>
-          <Link href="/contact" className="text-sm font-semibold text-gray-900">
-            Контакты
-          </Link>
-
-        </PopoverGroup>
-
         {/* Блок вход/выход */}
         <div className="hidden lg:block">
-  <UserMenuNoSSR />
-</div>
+          <UserMenuNoSSR />
+        </div>
       </nav>
 
       {/* Мобильное меню */}
@@ -156,61 +98,11 @@ export default function Header() {
               <XMarkIcon className="h-8 w-8" />
             </button>
             <div className="border-b pb-4 flex justify-center">
-        <UserMenuNoSSR />
-      </div>
+              <UserMenuNoSSR />
+            </div>
             <Link href="/" className="block text-sm font-semibold text-gray-900" onClick={closeMobileMenu}>
               Главная
             </Link>
-            <Link href="/news" className="block text-sm font-semibold text-gray-900" onClick={closeMobileMenu}>
-              Новости
-            </Link>
-            <Link href="/articles" className="block text-sm font-semibold text-gray-900" onClick={closeMobileMenu}>
-              Статьи
-            </Link>
-            <Link href="/about" className="block text-sm font-semibold text-gray-900" onClick={closeMobileMenu}>
-              О нас
-            </Link>
-            <Link href="/contact" className="block text-sm font-semibold text-gray-900" onClick={closeMobileMenu}>
-              Контакты
-            </Link>
-
-            {/* Продукты */}
-            <details className="border-t pt-2">
-              <summary className="text-sm font-semibold text-gray-900 cursor-pointer">
-                Продукты
-              </summary>
-              <div className="mt-2 space-y-2">
-                {productCategories.map((category) => (
-                  <Link
-                    key={category.key}
-                    href={`/products/${category.key}`}
-                    className="block text-gray-700"
-                    onClick={closeMobileMenu}
-                  >
-                    {category.value}
-                  </Link>
-                ))}
-              </div>
-            </details>
-
-            {/* Сервисы */}
-            <details className="border-t pt-2">
-              <summary className="text-sm font-semibold text-gray-900 cursor-pointer">
-                Сервисы
-              </summary>
-              <div className="mt-2 space-y-2">
-                {serviceCategories.map((category) => (
-                  <Link
-                    key={category.key}
-                    href={`/services/${category.key}`}
-                    className="block text-gray-700"
-                    onClick={closeMobileMenu}
-                  >
-                    {category.value}
-                  </Link>
-                ))}
-              </div>
-            </details>
           </div>
         </div>
       </Transition>

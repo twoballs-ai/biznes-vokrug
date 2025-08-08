@@ -8,14 +8,13 @@ export default function ProfileLayout({ children }) {
 
   const menuItems = [
     { name: "Профиль", href: "/profile" },
-    { name: "Организации", href: "/profile/organizations" },
-    { name: "Индивидуальный предприниматель", href: "/profile/ip" },
+    // { name: "Организации", href: "/profile/organizations" },
+    // { name: "Индивидуальный предприниматель", href: "/profile/ip" },
   ];
 
   return (
     <div className="flex min-h-screen">
       <nav className="w-1/4 p-4 bg-gray-100 border-r border-gray-300">
-        <h2 className="text-xl font-bold mb-4">Меню</h2>
         <ul className="space-y-2">
           {menuItems.map((item) => (
             <li key={item.href}>

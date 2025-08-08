@@ -190,52 +190,7 @@ export default function ProfilePage() {
 
       {/* Пример отображения данных */}
       <div className="grid grid-cols-2 gap-4 mt-6">
-        <div className="bg-blue-100 p-4 rounded">
-          <h2 className="text-xl font-bold">Организации</h2>
-          <p>{user.organizations?.length || 0} организаций</p>
-
-          {user.organizations?.map((org) => (
-            <div key={org.id} className="mt-2">
-              <p>
-                <strong>Название:</strong> {org.name}
-              </p>
-              <p>
-                <strong>Описание:</strong> {org.description}
-              </p>
-              <p>
-                <strong>Услуг:</strong> {org.services?.length || 0}
-              </p>
-              <p>
-                <strong>Продуктов:</strong> {org.products?.length || 0}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-green-100 p-4 rounded">
-          <h2 className="text-xl font-bold">Индивидуальный предприниматель</h2>
-          {user.individual_entrepreneur ? (
-            <>
-              <p>
-                <strong>ИНН:</strong> {user.individual_entrepreneur.inn}
-              </p>
-              <p>
-                <strong>ОГРНИП:</strong> {user.individual_entrepreneur.ogrnip}
-              </p>
-              <p>
-                <strong>Услуг:</strong>{" "}
-                {user.individual_entrepreneur.services?.length || 0}
-              </p>
-              <p>
-                <strong>Продуктов:</strong>{" "}
-                {user.individual_entrepreneur.products?.length || 0}
-              </p>
-            </>
-          ) : (
-            <p>Нет данных</p>
-          )}
-        </div>
-
+       
         <div className="bg-yellow-100 p-4 rounded">
           <h2 className="text-xl font-bold">Продукты</h2>
           <p>

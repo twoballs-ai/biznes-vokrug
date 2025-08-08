@@ -63,24 +63,11 @@ export default function HomePage() {
   return (
     <section className="container mx-auto flex flex-col-reverse md:flex-row gap-6">
       <div className="w-full md:w-5/6">
-        <h2 className="text-3xl font-bold mb-4 text-center">
-          Добро пожаловать на площадку "И то и сё".
-        </h2>
-        <p className="mb-4 text-center">
-          Мы предлагаем лучшие объявления от пользователей для вашего успеха.
-        </p>
-        <div className="text-center mb-6">
-          <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-            Узнать больше
-          </button>
-        </div>
-
         {/* Объявления */}
         {loading ? (
           <p>Загрузка...</p>
         ) : (
           <div className="text-center mt-6">
-            <h3 className="text-2xl font-semibold mb-4">Объявления</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {items.map((item) =>
                 item.type === "service" ? (

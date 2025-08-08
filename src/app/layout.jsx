@@ -12,10 +12,10 @@ import Head from "next/head";
 
 export const metadata = {
   title: {
-    template: '%s | И то и сё',
-    default: 'И то и сё', // новый default
+    template: '%s | toise.ru',
+    default: 'toise.ru', // a default is required when creating a template
   },
-};
+}
 
 export default function RootLayout({ children }) {
   return (
@@ -23,14 +23,14 @@ export default function RootLayout({ children }) {
       <html lang="ru">
         <Head>
           {/* 📌 Title и мета-теги */}
-          <title>И то и сё — Барахолка и онлайн-объявления</title>
-          <meta name="description" content="И то и сё - онлайн-платформа для размещения объявлений, покупок и продаж товаров и услуг, похожая на Авито." />
-          <meta name="keywords" content="барахолка, объявления, товары, услуги, купить, продать, Авито" />
+          <title>toise.ru — Платформа для ваших объявлений</title>
+          <meta name="description" content="toise.ru - это удобная площадка для поиска товаров и услуг, статей и новостей." />
+          <meta name="keywords" content="бизнес, услуги, предприниматели, новости, статьи, товары" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
           {/* Open Graph (для соцсетей) */}
-          <meta property="og:title" content="И то и сё" />
-          <meta property="og:description" content="Онлайн-объявления и барахолка для покупки и продажи товаров и услуг." />
+          <meta property="og:title" content="toise.ru" />
+          <meta property="og:description" content="Платформа для ваших объявлений" />
           <meta property="og:image" content="/favicon.ico" />
           <meta property="og:url" content="https://toise.ru" />
           <meta property="og:type" content="website" />
@@ -49,9 +49,9 @@ export default function RootLayout({ children }) {
           <footer className="bg-blue-600 text-white py-8 mt-auto">
             <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
-                <h2 className="text-lg font-bold">И то и сё</h2>
+                <h2 className="text-lg font-bold">toise.ru</h2>
                 <p className="text-sm">
-                  &copy; {new Date().getFullYear()} И то и сё. Все права защищены.
+                  &copy; {new Date().getFullYear()} toise.ru. Все права защищены.
                 </p>
               </div>
               <nav>
@@ -71,13 +71,12 @@ export default function RootLayout({ children }) {
                 </div>
               </nav>
               <div className="flex space-x-4">
-                {/* Заменим ссылки на соцсети на актуальные */}
-                <a href="https://t.me/yourtelegramchannel" target="_blank" rel="noopener noreferrer">
+                {/* <a href="https://t.me/yourtelegramchannel" target="_blank" rel="noopener noreferrer">
                   <FaTelegramPlane className="w-6 h-6 text-white hover:text-gray-300" />
                 </a>
                 <a href="https://vk.com/yourvkpage" target="_blank" rel="noopener noreferrer">
                   <FaVk className="w-6 h-6 text-white hover:text-gray-300" />
-                </a>
+                </a> */}
               </div>
             </div>
           </footer>
