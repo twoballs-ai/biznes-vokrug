@@ -25,17 +25,15 @@ const login = async (payload) => {
 
 
 const refreshToken = async () => {
-  const refresh_token = TokenService.getLocalRefreshToken();                                                                                         
+  const refresh_token = TokenService.getLocalRefreshToken();
   try {
-    const response = await axios.post(apiUrl + "refresh/", refresh_token, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
-    // if (jwtDecode(refreshToken).exp < currentTime / 1000) {
-    //   logout();
-    //   return Promise.reject("Token expired");
-    // }
+    const response = await api.post(
+      apiUrl + "refresh",
+      { refresh_token }, // передаём объект с ключом refresh_token
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
     return response.data;
   } catch (error) {
     toast.error("Error refreshing token!");
