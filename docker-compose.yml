@@ -7,21 +7,21 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      - PORT=5000  # Set the Next.js app to use port 4000
+      - PORT=5000  # Set the Next.js app to use port 5000
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
     labels:
       - "traefik.enable=true"
       # HTTPS Router
-      - "traefik.http.routers.biz-vokrug-app.rule=Host(`bizvokrug.ru`)"
-      - "traefik.http.routers.biz-vokrug-app.entryPoints=websecure"
-      - "traefik.http.routers.biz-vokrug-app.tls.certresolver=letsencrypt"
-      - "traefik.http.services.biz-vokrug-app-service.loadbalancer.server.port=5000"
+      - "traefik.http.routers.toise-app.rule=Host(`toise.ru`)"
+      - "traefik.http.routers.toise-app.entryPoints=websecure"
+      - "traefik.http.routers.toise-app.tls.certresolver=letsencrypt"
+      - "traefik.http.services.toise-app-service.loadbalancer.server.port=5000"
 
       # HTTP Router for Redirect
-      - "traefik.http.routers.biz-vokrug-app-http.rule=Host(`bizvokrug.ru`)"
-      - "traefik.http.routers.biz-vokrug-app-http.entryPoints=web"
-      - "traefik.http.routers.biz-vokrug-app-http.middlewares=https-redirect"
+      - "traefik.http.routers.toise-app-http.rule=Host(`toise.ru`)"
+      - "traefik.http.routers.toise-app-http.entryPoints=web"
+      - "traefik.http.routers.toise-app-http.middlewares=https-redirect"
 
       # Middleware for HTTPS Redirect
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"

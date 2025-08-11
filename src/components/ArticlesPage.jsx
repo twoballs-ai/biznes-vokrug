@@ -30,12 +30,14 @@ export default function ArticlesPage() {
       const response = await UserService.getArticlesWithPagination(skip, limit);
       if (response.data.status && response.data.data) {
         const newArticles = response.data.data;
-        setArticlesComponent((prevArticles) => {
-          const filteredArticles = newArticles.filter(
-            (article) => !prevArticles.some((prevItem) => prevItem.id === article.id)
-          );
-          return [...prevArticles, ...filteredArticles];
-        });
+setArticlesComponent((prevArticles) => {
+  if (!Array.isArray(newArticles)) return prevArticles;
+
+  const filteredArticles = newArticles.filter(
+    (article) => !prevArticles.some((prevItem) => prevItem.id === article.id)
+  );
+  return [...prevArticles, ...filteredArticles];
+});
         setSkip((prevSkip) => prevSkip + limit);
         if (newArticles.length < limit) {
           setHasMore(false);

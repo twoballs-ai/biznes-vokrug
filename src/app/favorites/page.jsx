@@ -35,8 +35,7 @@ export default function FavoritesPage() {
   const handleToggleFavorite = async (type, id) => {
     try {
       await UserService.removeFavorite(type, id);
-      setFavorites((prev) => prev.filter((f) => !(f.type === type && f.item.id === id)));
-      toast.info("Удалено из избранного");
+setFavorites((prev = []) => prev.filter((f) => !(f.type === type && f.item.id === id)));      toast.info("Удалено из избранного");
     } catch {
       toast.error("Ошибка при удалении из избранного");
     }

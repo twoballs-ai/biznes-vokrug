@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import UserService from "@/services/user.service";
 import AddAddressModal from "@/components/adressModal";
 import 'react-toastify/dist/ReactToastify.css'
+
 export default function UserItemForm({
   initialType = "product",
   item,
@@ -104,9 +105,9 @@ export default function UserItemForm({
     }
   };
 
-  // Обработка добавления изображений
+  // Обработка добавления изображений с защитой от undefined и фильтрацией
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
+    const files = e.target.files ? Array.from(e.target.files) : [];
     const validFiles = files.filter((file) => file.size <= 5 * 1024 * 1024);
 
     if (validFiles.length !== files.length) {
@@ -119,9 +120,9 @@ export default function UserItemForm({
     setSelectedImages((prev) => [...prev, ...validFiles]);
   };
 
-  // Удаление выбранного изображения
+  // Удаление выбранного изображения с защитой
   const removeImage = (index) => {
-    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+    setSelectedImages((selectedImages || []).filter((_, i) => i !== index));
   };
 
   // Сохранение формы
@@ -307,9 +308,9 @@ export default function UserItemForm({
                 }
               >
                 {addresses.map((a) => (
-    <option key={a.id} value={a.id}>
-  {a.address} {a.type && `(${a.type})`}
-</option>
+                  <option key={a.id} value={a.id}>
+                    {a.address} {a.type && `(${a.type})`}
+                  </option>
                 ))}
               </select>
             )}
@@ -344,11 +345,14 @@ export default function UserItemForm({
                 key={index}
                 className="relative w-20 h-20 rounded overflow-hidden border border-gray-300"
               >
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt="preview"
-                  className="object-cover w-full h-full"
-                />
+                {/* Защита на SSR */}
+                {typeof window !== "undefined" ? (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    className="object-cover w-full h-full"
+                  />
+                ) : null}
                 <button
                   type="button"
                   onClick={() => removeImage(index)}
