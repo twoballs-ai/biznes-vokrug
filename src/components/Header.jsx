@@ -54,7 +54,7 @@ export default function Header() {
         {/* Логотип */}
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
-            <h1 className="text-2xl font-bold text-blue-600">toise.ru</h1>
+            <h1 className="text-2xl font-bold text-blue-600">И то и сё</h1>
           </Link>
         </div>
 

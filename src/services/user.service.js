@@ -142,6 +142,21 @@ const getMyProducts = async () => {
 const getMyServices = async () => {
   return await api.get(apiUrl + "category-products/user/services");
 };
+// ----------- Избранное -----------
+const checkIsFavorite = async (itemType, itemId, includeItem = false) =>
+  api.get(apiUrl + `category-products/favorites/${itemType}/${itemId}`, { params: { include_item: includeItem } });
+
+const addFavorite = async (itemType, itemId) =>
+  api.post(apiUrl + `category-products/favorites/${itemType}/${itemId}`);
+
+const removeFavorite = async (itemType, itemId) =>
+  api.delete(apiUrl + `category-products/favorites/${itemType}/${itemId}`);
+
+const getFavorites = async () =>
+  api.get(apiUrl + "category-products/favorites");
+
+const getUserFavoritesFlat = async () =>
+  api.get(apiUrl + "category-products/favorites/user");
 // Экспорт всех методов
 const UserService = {
   getUserDetails,
@@ -178,6 +193,11 @@ const UserService = {
   deleteAddress,
   getMyProducts,
   getMyServices,
+    checkIsFavorite,
+  addFavorite,
+  removeFavorite,
+  getFavorites,
+  getUserFavoritesFlat,
 };
 
 export default UserService;

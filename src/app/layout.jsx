@@ -6,16 +6,15 @@ import Header from "@/components/Header";
 import Script from "next/script";
 import YandexMetrika from "@/components/metrics/YandexMetrika";
 import { Suspense } from "react";
-import { FaTelegramPlane, FaVk } from "react-icons/fa";
 import Link from "next/link";
 import Head from "next/head";
 
 export const metadata = {
   title: {
-    template: '%s | toise.ru',
-    default: 'toise.ru', // a default is required when creating a template
+    template: "%s | toise.ru",
+    default: "toise.ru",
   },
-}
+};
 
 export default function RootLayout({ children }) {
   return (
@@ -24,8 +23,14 @@ export default function RootLayout({ children }) {
         <Head>
           {/* 📌 Title и мета-теги */}
           <title>toise.ru — Платформа для ваших объявлений</title>
-          <meta name="description" content="toise.ru - это удобная площадка для поиска товаров и услуг, статей и новостей." />
-          <meta name="keywords" content="бизнес, услуги, предприниматели, новости, статьи, товары" />
+          <meta
+            name="description"
+            content="toise.ru - это удобная площадка для поиска товаров и услуг, статей и новостей."
+          />
+          <meta
+            name="keywords"
+            content="бизнес, услуги, предприниматели, новости, статьи, товары"
+          />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
           {/* Open Graph (для соцсетей) */}
@@ -54,6 +59,7 @@ export default function RootLayout({ children }) {
                   &copy; {new Date().getFullYear()} toise.ru. Все права защищены.
                 </p>
               </div>
+
               <nav>
                 <div className="flex space-x-4 mb-4 md:mb-0">
                   <Link href="/about" className="text-sm font-semibold text-white">
@@ -70,13 +76,11 @@ export default function RootLayout({ children }) {
                   </Link>
                 </div>
               </nav>
-              <div className="flex space-x-4">
-                {/* <a href="https://t.me/yourtelegramchannel" target="_blank" rel="noopener noreferrer">
-                  <FaTelegramPlane className="w-6 h-6 text-white hover:text-gray-300" />
-                </a>
-                <a href="https://vk.com/yourvkpage" target="_blank" rel="noopener noreferrer">
-                  <FaVk className="w-6 h-6 text-white hover:text-gray-300" />
-                </a> */}
+
+              {/* 📌 Кнопка RuStore */}
+              <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-center md:justify-end">
+   <iframe src="https://www.rustore.ru/external/simple-selection/buttons?theme=coloredLight&orientation=horizontal&stores=rustore%3Ahttps%3A%2F%2Fwww.rustore.ru%2Fcatalog%2Fapp%2Fru.toise.app%3Futm_source%3Davailable_in_rustore%26utm_medium%3Dru.toise.app%26rsm%3D1%26mt_link_id%3Diios36%26mt_sub1%3Dru.toise.app" frameborder="0" 
+width="100%" height="80px"></iframe>
               </div>
             </div>
           </footer>
