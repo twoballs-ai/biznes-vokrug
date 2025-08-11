@@ -167,6 +167,8 @@ const UserService = {
   suggestStreet,
     suggestCity,
   suggestStreet,
+  updateAddress,
+  deleteAddress,
 };
 
 export default UserService;

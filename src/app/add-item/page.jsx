@@ -25,27 +25,39 @@ export default function UserItemForm({
   const [selectedImages, setSelectedImages] = useState([]);
 
   // Загрузка адресов
-const loadAddresses = async () => {
-  setLoadingAddresses(true);
-  try {
-    const res = await UserService.listAddresses();
-    if (res.status && Array.isArray(res.data)) {
-      setAddresses(res.data);
-    } else {
+  const loadAddresses = async () => {
+    setLoadingAddresses(true);
+    try {
+      const res = await UserService.listAddresses();
+      console.log(res.data.data)
+      if (res.status && Array.isArray(res.data.data)) {
+        setAddresses(res.data);
+        
+        console.log("Адреса загружены:", res.data);
+      } else {
+        setAddresses([]);
+      }
+    } catch (error) {
+      toast.error("Ошибка загрузки адресов");
       setAddresses([]);
+    } finally {
+      setLoadingAddresses(false);
     }
-  } catch (error) {
-    toast.error("Ошибка загрузки адресов");
-    setAddresses([]);
-  } finally {
-    setLoadingAddresses(false);
-  }
-};
+  };
 
+  // Загружаем адреса при монтировании
   useEffect(() => {
     loadAddresses();
   }, []);
 
+  // Автоматический выбор первого адреса, если ни один не выбран
+  useEffect(() => {
+    if (addresses.length > 0 && !localItem.user_address_id) {
+      setLocalItem((li) => ({ ...li, user_address_id: addresses[0].id }));
+    }
+  }, [addresses]);
+
+  // Загрузка категорий в зависимости от типа
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -64,6 +76,7 @@ const loadAddresses = async () => {
     fetchCategories();
   }, [type]);
 
+  // При изменении item обновляем localItem и очищаем выбранные изображения
   useEffect(() => {
     if (item) {
       setLocalItem({
@@ -86,17 +99,15 @@ const loadAddresses = async () => {
     }
   }, [item]);
 
-  // После добавления нового адреса
+  // После добавления нового адреса обновляем список и выбираем первый
   const handleAddressAdded = async () => {
     await loadAddresses();
-    // выбираем последний (новый) адрес
     if (addresses.length > 0) {
       setLocalItem((li) => ({ ...li, user_address_id: addresses[0].id }));
     }
   };
 
-  // Изменения с картинками (без изменений)
-
+  // Обработка добавления изображений
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const validFiles = files.filter((file) => file.size <= 5 * 1024 * 1024);
@@ -111,10 +122,12 @@ const loadAddresses = async () => {
     setSelectedImages((prev) => [...prev, ...validFiles]);
   };
 
+  // Удаление выбранного изображения
   const removeImage = (index) => {
     setSelectedImages(selectedImages.filter((_, i) => i !== index));
   };
 
+  // Сохранение формы
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -160,7 +173,10 @@ const loadAddresses = async () => {
 
   return (
     <>
-      <form onSubmit={handleSave} className="space-y-6 max-w-xl mx-auto p-4 bg-white rounded shadow-md">
+      <form
+        onSubmit={handleSave}
+        className="space-y-6 max-w-xl mx-auto p-4 bg-white rounded shadow-md"
+      >
         {/* Тип */}
         <div>
           <label className="block mb-2 font-semibold text-gray-700">Тип *</label>
@@ -219,7 +235,9 @@ const loadAddresses = async () => {
         <div>
           <label className="block mb-2 font-semibold text-gray-700">Категория</label>
           <div className="flex flex-wrap gap-4">
-            {categories.length === 0 && <p className="text-gray-500">Категории не загружены</p>}
+            {categories.length === 0 && (
+              <p className="text-gray-500">Категории не загружены</p>
+            )}
             {categories.map((c) => (
               <label
                 key={c.key}
@@ -260,41 +278,41 @@ const loadAddresses = async () => {
         </div>
 
         {/* Адрес с кнопкой открытия модалки */}
-<div>
-  <label className="block mb-2 font-semibold text-gray-700">Адрес</label>
-  <div className="flex gap-2 items-center">
-    {loadingAddresses ? (
-      <p className="text-gray-500">Загрузка адресов...</p>
-    ) : !Array.isArray(addresses) || addresses.length === 0 ? (
-      <p className="text-red-600 font-semibold">
-        Адрес не выбран. Пожалуйста, добавьте адрес.
-      </p>
-    ) : (
-      <select
-        className="flex-grow p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-        value={localItem.user_address_id}
-        onChange={(e) =>
-          setLocalItem({ ...localItem, user_address_id: e.target.value })
-        }
-      >
-        <option value="">Не привязывать</option>
-        {addresses.map((a) => (
-          <option key={a.id} value={a.id}>
-            {a.address} {a.type ? `(${a.type})` : ""}
-          </option>
-        ))}
-      </select>
-    )}
+        <div>
+          <label className="block mb-2 font-semibold text-gray-700">Адрес</label>
+          <div className="flex gap-2 items-center">
+            {loadingAddresses ? (
+              <p className="text-gray-500">Загрузка адресов...</p>
+            ) : !Array.isArray(addresses) || addresses.length === 0 ? (
+              <p className="text-red-600 font-semibold">
+                Адрес не выбран. Пожалуйста, добавьте адрес.
+              </p>
+            ) : (
+              <select
+                className="flex-grow p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={localItem.user_address_id}
+                onChange={(e) =>
+                  setLocalItem({ ...localItem, user_address_id: e.target.value })
+                }
+              >
+                <option value="">Не привязывать</option>
+                {addresses.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.address} {a.type ? `(${a.type})` : ""}
+                  </option>
+                ))}
+              </select>
+            )}
 
-    <button
-      type="button"
-      className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-      onClick={() => setIsAddAddressOpen(true)}
-    >
-      Добавить адрес
-    </button>
-  </div>
-</div>
+            <button
+              type="button"
+              className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+              onClick={() => setIsAddAddressOpen(true)}
+            >
+              Добавить адрес
+            </button>
+          </div>
+        </div>
 
         {/* Фото */}
         <div>
