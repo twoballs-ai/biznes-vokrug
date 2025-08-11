@@ -48,7 +48,7 @@ export default function UserMenu() {
                 <Link href="/favorites" className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-100">
                   Избранное
                 </Link>
-                <Link href="/my-ads" className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-100">
+                <Link href="/my-advert" className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-100">
                   Мои объявления
                 </Link>
                 <button

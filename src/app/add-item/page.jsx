@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import UserService from "@/services/user.service";
 import AddAddressModal from "@/components/adressModal";
-
+import 'react-toastify/dist/ReactToastify.css'
 export default function UserItemForm({
   initialType = "product",
   item,
@@ -29,11 +29,8 @@ export default function UserItemForm({
     setLoadingAddresses(true);
     try {
       const res = await UserService.listAddresses();
-      console.log(res.data.data)
       if (res.status && Array.isArray(res.data.data)) {
-        setAddresses(res.data);
-        
-        console.log("Адреса загружены:", res.data);
+        setAddresses(res.data.data);
       } else {
         setAddresses([]);
       }
@@ -143,8 +140,13 @@ export default function UserItemForm({
       formData.append("category_id", localItem.category_id || "");
       formData.append("price", localItem.price || "");
       formData.append("user_address_id", localItem.user_address_id || "");
-
+      formData.append("status_id", 5);
       selectedImages.forEach((file) => formData.append("images", file));
+
+      // Логируем formData для проверки
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
 
       if (type === "product") {
         if (item) {
@@ -173,9 +175,20 @@ export default function UserItemForm({
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <form
         onSubmit={handleSave}
-        className="space-y-6 max-w-xl mx-auto p-4 bg-white rounded shadow-md"
+        className="space-y-6 max-w-3xl mx-auto p-4 bg-white rounded shadow-md"
       >
         {/* Тип */}
         <div>
@@ -189,8 +202,7 @@ export default function UserItemForm({
                   type === option
                     ? "bg-blue-600 text-white border-blue-600"
                     : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50"
-                }
-              `}
+                }`}
               >
                 <input
                   type="radio"
@@ -246,8 +258,7 @@ export default function UserItemForm({
                   localItem.category_id === String(c.key)
                     ? "bg-blue-500 text-white border-blue-500"
                     : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50"
-                }
-              `}
+                }`}
               >
                 <input
                   type="radio"
@@ -283,7 +294,7 @@ export default function UserItemForm({
           <div className="flex gap-2 items-center">
             {loadingAddresses ? (
               <p className="text-gray-500">Загрузка адресов...</p>
-            ) : !Array.isArray(addresses) || addresses.length === 0 ? (
+            ) : addresses.length === 0 ? (
               <p className="text-red-600 font-semibold">
                 Адрес не выбран. Пожалуйста, добавьте адрес.
               </p>
@@ -295,22 +306,23 @@ export default function UserItemForm({
                   setLocalItem({ ...localItem, user_address_id: e.target.value })
                 }
               >
-                <option value="">Не привязывать</option>
                 {addresses.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.address} {a.type ? `(${a.type})` : ""}
-                  </option>
+    <option key={a.id} value={a.id}>
+  {a.address} {a.type && `(${a.type})`}
+</option>
                 ))}
               </select>
             )}
 
-            <button
-              type="button"
-              className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-              onClick={() => setIsAddAddressOpen(true)}
-            >
-              Добавить адрес
-            </button>
+            {addresses.length === 0 && (
+              <button
+                type="button"
+                className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                onClick={() => setIsAddAddressOpen(true)}
+              >
+                Добавить адрес
+              </button>
+            )}
           </div>
         </div>
 

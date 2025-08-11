@@ -5,13 +5,17 @@ import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/imageViever";
 import { serverUrl } from "@/shared/config";
 import UserService from "@/services/user.service";
+import "swiper/css"; // Подключаем стили для Swiper
+import { use } from "react";
 
 export default function ProductDetails({ params }) {
-  const { id } = params; 
+  const { id } = use(params); // Распаковка Promise
+
   const router = useRouter();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(0); // Индекс выбранного изображения
 
   useEffect(() => {
     if (!id) {
@@ -44,7 +48,7 @@ export default function ProductDetails({ params }) {
   if (!product) return <div className="text-center text-lg font-semibold text-gray-600">Продукт не найден.</div>;
 
   return (
-    <div className="container mx-auto p-4  bg-white shadow-xl rounded-lg">
+    <div className="container mx-auto p-4 bg-white shadow-xl rounded-lg">
       <button
         className="mb-6 text-blue-600 hover:underline focus:outline-none"
         onClick={() => router.back()}
@@ -53,19 +57,37 @@ export default function ProductDetails({ params }) {
       </button>
       <h1 className="text-3xl font-semibold text-gray-900 mb-6">{product.name}</h1>
 
-      {/* Изображения */}
-      <div className="mb-6">
+      {/* Основной слайдер с изображениями */}
+      <div className="mb-6 relative">
         {product.images?.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {product.images.map((img, index) => (
-              <div key={index} className="w-full h-48 sm:h-56 lg:h-72 overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                <ImageViewer
-                  src={`${serverUrl}/${img}`}
-                  alt={`Изображение ${index + 1} продукта`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
-            ))}
+          <div>
+            {/* Основное изображение */}
+            <div className="w-full max-w-[400px] h-[300px] overflow-hidden rounded-lg shadow-md mx-auto">
+              <ImageViewer
+                src={`${serverUrl}/${product.images[selectedIndex]}`}
+                alt={`Изображение ${selectedIndex + 1} продукта`}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+
+            {/* Список миниатюр */}
+            <div className="mt-4 flex space-x-4 overflow-x-auto">
+              {product.images.map((img, index) => (
+                <div
+                  key={index}
+                  className={`w-[80px] sm:w-[100px] lg:w-[120px] h-[60px] sm:h-[80px] lg:h-[100px] overflow-hidden rounded-lg cursor-pointer border ${
+                    selectedIndex === index ? "border-blue-500" : "border-transparent"
+                  } transition`}
+                  onClick={() => setSelectedIndex(index)} // При клике на миниатюру меняем изображение
+                >
+                  <img
+                    src={`${serverUrl}/${img}`}
+                    alt={`Миниатюра ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <p className="text-gray-500 italic">Изображения отсутствуют</p>

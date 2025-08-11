@@ -135,6 +135,13 @@ const suggestStreet = async (query, region, city) => {
   if (city) params.city = city;
   return await api.get(apiUrl + "dadata/street", { params });
 };
+const getMyProducts = async () => {
+  return await api.get(apiUrl + "category-products/user/products");
+};
+
+const getMyServices = async () => {
+  return await api.get(apiUrl + "category-products/user/services");
+};
 // Экспорт всех методов
 const UserService = {
   getUserDetails,
@@ -169,6 +176,8 @@ const UserService = {
   suggestStreet,
   updateAddress,
   deleteAddress,
+  getMyProducts,
+  getMyServices,
 };
 
 export default UserService;

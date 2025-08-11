@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/imageViever";
 import { serverUrl } from "@/shared/config";
 import UserService from "@/services/user.service";
-
+import { use } from "react";
 export default function ServiceDetails({ params }) {
-  const { id } = params; // динамический параметр, например, /service/[id]
+
+  const { id } = use(params);
   const router = useRouter();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(0); // Индекс выбранного изображения
 
   useEffect(() => {
     if (!id) {
@@ -53,19 +55,37 @@ export default function ServiceDetails({ params }) {
       </button>
       <h1 className="text-3xl font-semibold text-gray-900 mb-4">{service.name}</h1>
 
-      {/* Изображения */}
-      <div className="mb-6">
+      {/* Основное изображение */}
+      <div className="mb-6 relative">
         {service.images?.length > 0 ? (
-          <div className="flex flex-wrap gap-4">
-            {service.images.map((img, index) => (
-              <div key={index} className="w-32 h-32 overflow-hidden rounded-lg shadow-md">
-                <ImageViewer
-                  src={`${serverUrl}/${img}`}
-                  alt={`Изображение ${index + 1} услуги`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
+          <div>
+            {/* Основное изображение */}
+            <div className="w-full max-w-[400px] h-[300px] overflow-hidden rounded-lg shadow-md mx-auto">
+              <ImageViewer
+                src={`${serverUrl}/${service.images[selectedIndex]}`}
+                alt={`Изображение ${selectedIndex + 1} услуги`}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+
+            {/* Список миниатюр */}
+            <div className="mt-4 flex space-x-4 overflow-x-auto">
+              {service.images.map((img, index) => (
+                <div
+                  key={index}
+                  className={`w-[80px] sm:w-[100px] lg:w-[120px] h-[60px] sm:h-[80px] lg:h-[100px] overflow-hidden rounded-lg cursor-pointer border ${
+                    selectedIndex === index ? "border-blue-500" : "border-transparent"
+                  } transition`}
+                  onClick={() => setSelectedIndex(index)} // При клике на миниатюру меняем изображение
+                >
+                  <img
+                    src={`${serverUrl}/${img}`}
+                    alt={`Миниатюра ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <p className="text-gray-500 italic">Изображения отсутствуют</p>

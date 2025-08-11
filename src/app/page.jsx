@@ -11,7 +11,7 @@ import "swiper/css/pagination";
 import CurrencyWidget from "@/components/widgets/CurrencyWidget";
 import CryptoWidget from "@/components/widgets/CryptoWidget";
 import ContentBlock from "@/components/HomePage/ContentBlock";
-
+import { toast, ToastContainer } from "react-toastify";
 export default function HomePage() {
   const [city, setCity] = useState("Неизвестный город");
   const [items, setItems] = useState([]); // для всех объявлений
@@ -62,6 +62,7 @@ export default function HomePage() {
 
   return (
     <section className="container mx-auto flex flex-col-reverse md:flex-row gap-6">
+
       <div className="w-full md:w-5/6">
         {/* Объявления */}
         {loading ? (
