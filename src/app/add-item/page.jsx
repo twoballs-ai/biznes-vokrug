@@ -50,7 +50,7 @@ export default function UserItemForm({
 
   // Автоматический выбор первого адреса, если ни один не выбран
   useEffect(() => {
-    if (addresses.length > 0 && !localItem.user_address_id) {
+    if (addresses?.length > 0 && !localItem.user_address_id) {
       setLocalItem((li) => ({ ...li, user_address_id: addresses[0].id }));
     }
   }, [addresses]);
@@ -100,7 +100,7 @@ export default function UserItemForm({
   // После добавления нового адреса обновляем список и выбираем первый
   const handleAddressAdded = async () => {
     await loadAddresses();
-    if (addresses.length > 0) {
+    if (addresses?.length > 0) {
       setLocalItem((li) => ({ ...li, user_address_id: addresses[0].id }));
     }
   };
@@ -248,10 +248,10 @@ export default function UserItemForm({
         <div>
           <label className="block mb-2 font-semibold text-gray-700">Категория</label>
           <div className="flex flex-wrap gap-4">
-            {categories.length === 0 && (
+            {categories?.length === 0 && (
               <p className="text-gray-500">Категории не загружены</p>
             )}
-            {categories.map((c) => (
+            {categories?.map((c) => (
               <label
                 key={c.key}
                 className={`cursor-pointer px-4 py-2 border rounded-lg transition
@@ -295,7 +295,7 @@ export default function UserItemForm({
           <div className="flex gap-2 items-center">
             {loadingAddresses ? (
               <p className="text-gray-500">Загрузка адресов...</p>
-            ) : addresses.length === 0 ? (
+            ) : addresses?.length === 0 ? (
               <p className="text-red-600 font-semibold">
                 Адрес не выбран. Пожалуйста, добавьте адрес.
               </p>
@@ -307,7 +307,7 @@ export default function UserItemForm({
                   setLocalItem({ ...localItem, user_address_id: e.target.value })
                 }
               >
-                {addresses.map((a) => (
+                {addresses?.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.address} {a.type && `(${a.type})`}
                   </option>
@@ -315,7 +315,7 @@ export default function UserItemForm({
               </select>
             )}
 
-            {addresses.length === 0 && (
+            {addresses?.length === 0 && (
               <button
                 type="button"
                 className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
@@ -340,7 +340,7 @@ export default function UserItemForm({
             file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           />
           <div className="mt-3 flex flex-wrap gap-3">
-            {selectedImages.map((file, index) => (
+            {selectedImages?.map((file, index) => (
               <div
                 key={index}
                 className="relative w-20 h-20 rounded overflow-hidden border border-gray-300"

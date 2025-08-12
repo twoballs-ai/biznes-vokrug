@@ -79,7 +79,7 @@ export default function RootLayout({ children }) {
 
               {/* 📌 Кнопка RuStore */}
               <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-center md:justify-end">
-   <iframe src="https://www.rustore.ru/external/simple-selection/buttons?theme=coloredLight&orientation=horizontal&stores=rustore%3Ahttps%3A%2F%2Fwww.rustore.ru%2Fcatalog%2Fapp%2Fru.toise.app%3Futm_source%3Davailable_in_rustore%26utm_medium%3Dru.toise.app%26rsm%3D1%26mt_link_id%3Diios36%26mt_sub1%3Dru.toise.app" frameborder="0" 
+   <iframe src="https://www.rustore.ru/external/simple-selection/buttons?theme=coloredLight&orientation=horizontal&stores=rustore%3Ahttps%3A%2F%2Fwww.rustore.ru%2Fcatalog%2Fapp%2Fru.toise.app%3Futm_source%3Davailable_in_rustore%26utm_medium%3Dru.toise.app%26rsm%3D1%26mt_link_id%3Diios36%26mt_sub1%3Dru.toise.app" border="0" 
 width="100%" height="80px"></iframe>
               </div>
             </div>
