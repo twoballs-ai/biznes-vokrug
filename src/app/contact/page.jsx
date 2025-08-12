@@ -15,7 +15,7 @@ export default function ContactPage() {
         <div className="mb-6">
           <ul className="space-y-3">
             <li>
-              <strong>Email:</strong> info@bizvokrug.ru
+              <strong>Email:</strong> info@toise.ru
             </li>
             <li>
               <strong>Телефон:</strong> +7 917 676-7659

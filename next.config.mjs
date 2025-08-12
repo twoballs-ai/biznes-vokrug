@@ -4,11 +4,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "api.bizvokrug.ru",
+        hostname: "api.toise.ru",
         pathname: "/api/category-products/downloader/**",
       },
     ],
-    domains: ["api.bizvokrug.ru"],
+    domains: ["api.toise.ru"],
   },
 };
 

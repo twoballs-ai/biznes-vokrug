@@ -1,8 +1,8 @@
 /** @type {import('next-sitemap').IConfig} */
 const axios = require("axios");
 
-const siteUrl = "https://bizvokrug.ru"; // Домен сайта
-const apiUrl = "https://api.bizvokrug.ru"; // URL FastAPI сервера
+const siteUrl = "https://toise.ru"; // Домен сайта
+const apiUrl = "https://api.toise.ru"; // URL FastAPI сервера
 
 module.exports = {
   siteUrl,
