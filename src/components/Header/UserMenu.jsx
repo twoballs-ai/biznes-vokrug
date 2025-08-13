@@ -64,7 +64,7 @@ export default function UserMenu() {
           </Popover>
 
           <Link
-            href="/add-item"
+            href="/my-advert/add"
             className="text-sm font-semibold text-white bg-blue-600 border border-blue-600 rounded-md px-4 py-2 hover:bg-blue-700 hover:text-white"
           >
             Разместить объявление

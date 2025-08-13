@@ -101,7 +101,7 @@ export default function MyServiceCard({ service, isLoading }) {
       {/* Кнопки действий */}
       <div className="flex justify-between mt-3">
         <Link
-          href={`/service/edit/${service.id}`} // Навигация с помощью Link
+          href={`/my-advert/edit/${service.id}`} // Навигация с помощью Link
           className="text-blue-500 hover:text-blue-700"
         >
           Редактировать

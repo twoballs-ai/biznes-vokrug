@@ -86,7 +86,7 @@ export default function MyProductCard({ product, isLoading }) {
       {/* Кнопки действий */}
       <div className="flex justify-between mt-3">
         <Link
-          href={`/product/edit/${product.id}`}  // Навигация с помощью Link
+          href={`/my-advert/edit/${product.id}`}  // Навигация с помощью Link
           className="text-blue-500 hover:text-blue-700"
         >
           Редактировать
