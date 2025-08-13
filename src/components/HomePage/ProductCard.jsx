@@ -23,7 +23,7 @@ const truncateAddress = (address) => {
   return address;
 };
 
-export default function ProductCard({ product, isLoading }) {
+export default function ProductCard({ product, isLoading, isAuthenticated }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [loadingFav, setLoadingFav] = useState(true);
 
@@ -31,6 +31,7 @@ export default function ProductCard({ product, isLoading }) {
 
   useEffect(() => {
     let mounted = true;
+      if (isAuthenticated) {
     // Проверяем, в избранном ли продукт
     UserService.checkIsFavorite("product", product.id)
       .then((res) => {
@@ -40,13 +41,17 @@ export default function ProductCard({ product, isLoading }) {
         }
       })
       .catch(() => setLoadingFav(false));
+          } else {
+      setLoadingFav(false);
+    }
     return () => {
       mounted = false;
     };
-  }, [product.id]);
+  }, [product.id, isAuthenticated]);
 
   const toggleFavorite = async (e) => {
     e.preventDefault(); // чтобы не срабатывал переход по ссылке
+    if (!isAuthenticated) return; 
     setLoadingFav(true);
     try {
       if (isFavorite) {
@@ -69,14 +74,17 @@ export default function ProductCard({ product, isLoading }) {
     <Link href={`/product/${product.id}`}>
       <div className="relative block border p-3 rounded-lg shadow-sm text-left hover:shadow-md transition-shadow">
         {/* Иконка избранного */}
-        <button
-          onClick={toggleFavorite}
-          disabled={loadingFav}
-          className="absolute top-2 right-2 z-20 text-red-500 hover:text-red-700 focus:outline-none"
-          aria-label={isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
-        >
-          {isFavorite ? <FaHeart size={20} /> : <FaRegHeart size={20} />}
-        </button>
+        {isAuthenticated && (
+          <button
+            onClick={toggleFavorite}
+            disabled={loadingFav}
+            className="absolute top-2 right-2 z-20 text-red-500 hover:text-red-700 focus:outline-none"
+            aria-label={isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
+          >
+            {isFavorite ? <FaHeart size={20} /> : <FaRegHeart size={20} />}
+          </button>
+        )}
+
 
         {/* Изображения */}
         {isLoading ? (

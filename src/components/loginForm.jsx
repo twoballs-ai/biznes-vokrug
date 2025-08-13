@@ -2,11 +2,15 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from '@/contexts/AuthProvider';
-import Link from "next/link"; // Import Link for navigation
+import { useDispatch } from "react-redux";
+import { login as loginAction } from "@/store/features/authSlice";
+import Link from "next/link";
+import { useRouter } from "next/navigation"; // <-- добавляем useRouter
+import AuthService from '@/services/auth.service';
 
 const LoginForm = () => {
-  const { login } = useAuth();
+  const dispatch = useDispatch();
+  const router = useRouter(); // <-- инициализация роутера
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,11 +22,18 @@ const LoginForm = () => {
     payload.append("password", password);
 
     try {
-      await login(payload); // Call login method from context
-      toast.success("Вы успешно вошли!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      const response = await AuthService.login(payload); 
+      console.log(response)
+      const userData = response.data.user;
+      const accessToken = response.data.access_token;
+      const refreshToken = response.data.refresh_token;
+
+      dispatch(loginAction({ user: userData, accessToken, refreshToken }));
+
+      toast.success("Вы успешно вошли!", { position: "top-right", autoClose: 3000 });
+
+      // Перенаправляем на главную страницу
+      router.push("/"); 
     } catch (error) {
       console.error("Ошибка при входе:", error);
       toast.error("Произошла ошибка. Пожалуйста, попробуйте снова.", {
@@ -72,8 +83,7 @@ const LoginForm = () => {
           Войти
         </button>
       </form>
-      
-      {/* Link to Register page */}
+
       <div className="mt-4 text-center">
         <p className="text-sm text-gray-600">
           Нет аккаунта?{" "}

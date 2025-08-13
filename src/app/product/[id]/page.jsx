@@ -6,11 +6,9 @@ import ImageViewer from "@/components/imageViever";
 import { serverUrl } from "@/shared/config";
 import UserService from "@/services/user.service";
 import "swiper/css"; // Подключаем стили для Swiper
-import { use } from "react";
 
 export default function ProductDetails({ params }) {
-  const { id } = use(params); // Распаковка Promise
-
+const { id } = params; 
   const router = useRouter();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -1,12 +1,15 @@
+'use client';
+
 import { createSlice } from '@reduxjs/toolkit';
 import TokenService from '@/services/token.service';
 
-// Начальное состояние
+const isBrowser = typeof window !== 'undefined';
+
 const initialState = {
-  user: JSON.parse(localStorage.getItem("user_data")) || null,
-  accessToken: TokenService.getLocalAccessToken() || null,
-  refreshToken: TokenService.getLocalRefreshToken() || null,
-  isAuthenticated: !!localStorage.getItem("user_data"),
+  user: isBrowser ? JSON.parse(localStorage.getItem("user_data")) || null : null,
+  accessToken: isBrowser ? TokenService.getLocalAccessToken() || null : null,
+  refreshToken: isBrowser ? TokenService.getLocalRefreshToken() || null : null,
+  isAuthenticated: isBrowser ? !!localStorage.getItem("user_data") : false,
 };
 
 const authSlice = createSlice({
@@ -19,10 +22,11 @@ const authSlice = createSlice({
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
 
-      // Сохраняем данные в localStorage
-      localStorage.setItem("user_data", JSON.stringify(action.payload.user));
-      TokenService.updateLocalAccessToken(action.payload.accessToken);
-      TokenService.updateLocalRefreshToken(action.payload.refreshToken);
+      if (isBrowser) {
+        localStorage.setItem("user_data", JSON.stringify(action.payload.user));
+        TokenService.updateLocalAccessToken(action.payload.accessToken);
+        TokenService.updateLocalRefreshToken(action.payload.refreshToken);
+      }
     },
     logout: (state) => {
       state.user = null;
@@ -30,20 +34,22 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.isAuthenticated = false;
 
-      // Убираем данные из localStorage
-      localStorage.removeItem("user_data");
-      TokenService.removeTokens();
+      if (isBrowser) {
+        localStorage.removeItem("user_data");
+        TokenService.removeTokens();
+      }
     },
     updateTokens: (state, action) => {
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
 
-      TokenService.updateLocalAccessToken(action.payload.accessToken);
-      TokenService.updateLocalRefreshToken(action.payload.refreshToken);
+      if (isBrowser) {
+        TokenService.updateLocalAccessToken(action.payload.accessToken);
+        TokenService.updateLocalRefreshToken(action.payload.refreshToken);
+      }
     },
   },
 });
 
 export const { login, logout, updateTokens } = authSlice.actions;
-
 export default authSlice.reducer;

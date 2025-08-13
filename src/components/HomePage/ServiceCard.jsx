@@ -23,7 +23,7 @@ const truncateAddress = (address) => {
   return address;
 };
 
-export default function ServiceCard({ service, isLoading }) {
+export default function ServiceCard({ service, isLoading, isAuthenticated }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [loadingFav, setLoadingFav] = useState(true);
 
@@ -31,31 +31,37 @@ export default function ServiceCard({ service, isLoading }) {
 
   useEffect(() => {
     let mounted = true;
-    UserService.checkIsFavorite("service", service.id)
-      .then((res) => {
-        if (mounted && res.data) {
-          setIsFavorite(res.data.isFavorite);
-          setLoadingFav(false);
-        }
-      })
-      .catch(() => setLoadingFav(false));
+
+    if (isAuthenticated) {
+      UserService.checkIsFavorite("service", service.id)
+        .then((res) => {
+          if (mounted && res.data) {
+            setIsFavorite(res.data.isFavorite);
+          }
+        })
+        .catch(() => {})
+        .finally(() => setLoadingFav(false));
+    } else {
+      // для неавторизованных пользователей просто выключаем загрузку фаворитов
+      setLoadingFav(false);
+    }
+
     return () => {
       mounted = false;
     };
-  }, [service.id]);
+  }, [service.id, isAuthenticated]);
 
   const toggleFavorite = async (e) => {
     e.preventDefault();
+    if (!isAuthenticated) return; // блокируем для неавторизованных
     setLoadingFav(true);
     try {
       if (isFavorite) {
         await UserService.removeFavorite("service", service.id);
         setIsFavorite(false);
-        // toast.info("Удалено из избранного");
       } else {
         await UserService.addFavorite("service", service.id);
         setIsFavorite(true);
-        // toast.success("Добавлено в избранное");
       }
     } catch {
       toast.error("Ошибка при изменении избранного");
@@ -67,14 +73,17 @@ export default function ServiceCard({ service, isLoading }) {
   return (
     <Link href={`/service/${service.id}`}>
       <div className="relative block border p-3 rounded-lg shadow-sm text-left hover:shadow-md transition-shadow">
-        <button
-          onClick={toggleFavorite}
-          disabled={loadingFav}
-          className="absolute top-2 right-2 z-20 text-red-500 hover:text-red-700 focus:outline-none"
-          aria-label={isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
-        >
-          {isFavorite ? <FaHeart size={20} /> : <FaRegHeart size={20} />}
-        </button>
+        {/* Кнопка избранного только для авторизованных */}
+        {isAuthenticated && (
+          <button
+            onClick={toggleFavorite}
+            disabled={loadingFav}
+            className="absolute top-2 right-2 z-20 text-red-500 hover:text-red-700 focus:outline-none"
+            aria-label={isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
+          >
+            {isFavorite ? <FaHeart size={20} /> : <FaRegHeart size={20} />}
+          </button>
+        )}
 
         {isLoading ? (
           <div className="mb-2 bg-gray-100 h-32 animate-pulse"></div>

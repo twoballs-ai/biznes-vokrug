@@ -1,13 +1,12 @@
 'use client';
 import { useEffect, useState } from "react";
-import { useAuth } from '@/contexts/AuthProvider';
+import { useSelector } from "react-redux";
 import UserService from "../services/user.service";
 import ProductCard from "@/components/HomePage/ProductCard";
 import ServiceCard from "@/components/HomePage/ServiceCard";
-import { toast } from 'react-toastify';
 
 export default function HomePage() {
-  const { authenticated } = useAuth();
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,14 +23,14 @@ export default function HomePage() {
         const products = productsResponse.data.products || [];
 
         // Ограничиваем данные для неавторизованных пользователей
-        const allItems = authenticated
+        const allItems = isAuthenticated
           ? [
               ...services.map((service) => ({ ...service, type: "service" })),
               ...products.map((product) => ({ ...product, type: "product" })),
             ]
           : [
-              ...services.slice(0, 5).map((service) => ({ ...service, type: "service" })), // Только часть услуг
-              ...products.slice(0, 5).map((product) => ({ ...product, type: "product" })), // Только часть товаров
+              ...services.slice(0, 5).map((service) => ({ ...service, type: "service" })),
+              ...products.slice(0, 5).map((product) => ({ ...product, type: "product" })),
             ];
 
         setItems(allItems);
@@ -43,7 +42,7 @@ export default function HomePage() {
     };
 
     fetchData();
-  }, [authenticated]);
+  }, [isAuthenticated]);
 
   return (
     <section className="container mx-auto flex flex-col-reverse md:flex-row gap-6">
@@ -55,9 +54,9 @@ export default function HomePage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {items.map((item) =>
                 item.type === "service" ? (
-                  <ServiceCard key={item.id} service={item} />
+                  <ServiceCard key={item.id} service={item} isAuthenticated={isAuthenticated}/>
                 ) : (
-                  <ProductCard key={item.id} product={item} />
+                  <ProductCard key={item.id} product={item} isAuthenticated={isAuthenticated} />
                 )
               )}
             </div>

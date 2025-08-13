@@ -1,8 +1,8 @@
 import axios from 'axios';
 import TokenService from './token.service';
 import AuthService from './auth.service';
-import { updateTokens } from '@/features/authSlice';  // Путь к действиям
-import { store } from '@/store';  // Путь к store
+import { updateTokens } from '@/store/features/authSlice';  // Путь к действиям
+import { store } from '@/store/store';  // Путь к store
 
 
 const instance = axios.create({

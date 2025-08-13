@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/imageViever";
 import { serverUrl } from "@/shared/config";
 import UserService from "@/services/user.service";
-import { use } from "react";
 export default function ServiceDetails({ params }) {
 
-  const { id } = use(params);
+  const { id } = params; 
   const router = useRouter();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
