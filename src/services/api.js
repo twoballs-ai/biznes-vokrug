@@ -34,7 +34,7 @@ instance.interceptors.response.use(
 
       try {
         const rs = await AuthService.refreshToken();
-        const { access_token, refresh_token } = rs.data;
+        const { access_token, refresh_token } = rs;
 
         // Обновляем токены в Redux
         store.dispatch(updateTokens({ accessToken: access_token, refreshToken: refresh_token }));
