@@ -1,37 +1,20 @@
-"use client";
-import { useEffect, useState, useRef } from "react";
+'use client';
+import { useEffect, useState } from "react";
+import { useAuth } from '@/contexts/AuthProvider';
 import UserService from "../services/user.service";
 import ProductCard from "@/components/HomePage/ProductCard";
 import ServiceCard from "@/components/HomePage/ServiceCard";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import CurrencyWidget from "@/components/widgets/CurrencyWidget";
-import CryptoWidget from "@/components/widgets/CryptoWidget";
-import ContentBlock from "@/components/HomePage/ContentBlock";
-import { toast, ToastContainer } from "react-toastify";
-export default function HomePage() {
-  const [city, setCity] = useState("Неизвестный город");
-  const [items, setItems] = useState([]); // для всех объявлений
-  const [loading, setLoading] = useState(true);
-  const firstLoad = useRef(false);
+import { toast } from 'react-toastify';
 
-  const limit = 10;
+export default function HomePage() {
+  const { authenticated } = useAuth();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const allCookies = document.cookie.split("; ");
-    const cityCookie = allCookies.find((cookie) => cookie.startsWith("city="));
-
-    if (cityCookie) {
-      const cityValue = decodeURIComponent(cityCookie.split("=")[1]);
-      setCity(cityValue || "Неизвестный город");
-    }
-
-    // Функция загрузки данных (услуги и товары)
     const fetchData = async () => {
       try {
+        // Получаем товары и услуги
         const [servicesResponse, productsResponse] = await Promise.all([
           UserService.getServicesWithPagination(0, 21),
           UserService.getProductsWithPagination(0, 21),
@@ -40,13 +23,18 @@ export default function HomePage() {
         const services = servicesResponse.data.service || [];
         const products = productsResponse.data.products || [];
 
-        // Смешиваем два массива
-        const allItems = [
-          ...services.map((service) => ({ ...service, type: "service" })),
-          ...products.map((product) => ({ ...product, type: "product" })),
-        ];
+        // Ограничиваем данные для неавторизованных пользователей
+        const allItems = authenticated
+          ? [
+              ...services.map((service) => ({ ...service, type: "service" })),
+              ...products.map((product) => ({ ...product, type: "product" })),
+            ]
+          : [
+              ...services.slice(0, 5).map((service) => ({ ...service, type: "service" })), // Только часть услуг
+              ...products.slice(0, 5).map((product) => ({ ...product, type: "product" })), // Только часть товаров
+            ];
 
-        setItems(allItems); // Обновляем состояние с объявлениями
+        setItems(allItems);
       } catch (error) {
         console.error("Ошибка при загрузке данных:", error);
       } finally {
@@ -54,17 +42,12 @@ export default function HomePage() {
       }
     };
 
-    if (!firstLoad.current) {
-      firstLoad.current = true;
-      fetchData();
-    }
-  }, []);
+    fetchData();
+  }, [authenticated]);
 
   return (
     <section className="container mx-auto flex flex-col-reverse md:flex-row gap-6">
-
       <div className="w-full md:w-5/6">
-        {/* Объявления */}
         {loading ? (
           <p>Загрузка...</p>
         ) : (
@@ -80,11 +63,6 @@ export default function HomePage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* ПРАВАЯ ЧАСТЬ: Виджеты */}
-      <div className="w-full md:w-1/6 space-y-4 z-10">
-
       </div>
     </section>
   );

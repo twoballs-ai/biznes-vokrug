@@ -1,68 +1,55 @@
-import axios from "axios";
-import TokenService from "./token.service"; // Assuming TokenService is adapted for SSR
-import AuthService from "./auth.service";
+import axios from 'axios';
+import TokenService from './token.service';
+import AuthService from './auth.service';
+import { updateTokens } from '@/features/authSlice';  // Путь к действиям
+import { store } from '@/store';  // Путь к store
+
 
 const instance = axios.create({
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-// Interceptor for requests
+// Интерцептор для запроса
 instance.interceptors.request.use(
   (config) => {
-    if (typeof window !== 'undefined') {
-      const token = TokenService.getLocalAccessToken();
-      if (token) {
-        config.headers["Authorization"] = 'Bearer ' + token;
-      }
+    const { accessToken } = store.getState().auth;
+    if (accessToken) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Interceptor for responses
+// Интерцептор для ответа
 instance.interceptors.response.use(
-  (res) => {
-    return res;
-  },
+  (res) => res,
   async (err) => {
     const originalConfig = err.config;
 
-    if (err.response) {
-      console.log(err.response);
+    if (err.response && err.response.status === 401 && !originalConfig._retry) {
+      originalConfig._retry = true;
 
-      // Handling 401 Unauthorized errors
-      if (err.response.status === 401 && !originalConfig._retry) {
-        originalConfig._retry = true;
-        try {
-          const rs = await AuthService.refreshToken();
-          const accessToken = rs.access_token;
-          
-          if (typeof window !== 'undefined') {
-            TokenService.updateLocalAccessToken(accessToken);
-          }
+      try {
+        const rs = await AuthService.refreshToken();
+        const { access_token, refresh_token } = rs.data;
 
-          instance.defaults.headers.common["Authorization"] = 'Bearer ' + accessToken;
-          return instance(originalConfig);
-        } catch (_error) {
-          console.log("Error refreshing token. Please log in again.");
-          // You can redirect to the login page or return a custom error message here
-          return Promise.reject(_error);
-        }
+        // Обновляем токены в Redux
+        store.dispatch(updateTokens({ accessToken: access_token, refreshToken: refresh_token }));
+
+        // Обновляем заголовок Authorization в axios
+        instance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+        // Повторяем запрос
+        return instance(originalConfig);
+      } catch (_error) {
+        console.error('Ошибка при обновлении токена');
+        TokenService.removeTokens();
+        store.dispatch(logout());
+        return Promise.reject(_error);
       }
-
-      // Handle 403 Forbidden errors
-      if (err.response.status === 403) {
-        console.error("You do not have permission to perform this action.");
-        return Promise.reject(err.response.data);
-      }
-    } else {
-      // Generic error handling
-      console.error("An unexpected error occurred.");
     }
 
     return Promise.reject(err);

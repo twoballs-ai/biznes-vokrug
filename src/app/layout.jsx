@@ -1,4 +1,5 @@
-import { AuthProvider } from "../contexts/AuthProvider";
+import { Provider } from 'react-redux';
+import { store } from '@/store/store'; 
 import "./globals.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -18,7 +19,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <AuthProvider>
+    <Provider store={store}> 
       <html lang="ru">
         <Head>
           {/* 📌 Title и мета-теги */}
@@ -107,6 +108,6 @@ width="100%" height="80px"></iframe>
           </Suspense>
         </body>
       </html>
-    </AuthProvider>
+    </Provider>
   );
 }

@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from '@/contexts/AuthProvider';
+import Link from "next/link"; // Import Link for navigation
 
 const LoginForm = () => {
-  const { login } = useAuth(); // Используем метод из контекста
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -17,7 +18,7 @@ const LoginForm = () => {
     payload.append("password", password);
 
     try {
-      await login(payload); // Вызов метода из контекста
+      await login(payload); // Call login method from context
       toast.success("Вы успешно вошли!", {
         position: "top-right",
         autoClose: 3000,
@@ -71,6 +72,16 @@ const LoginForm = () => {
           Войти
         </button>
       </form>
+      
+      {/* Link to Register page */}
+      <div className="mt-4 text-center">
+        <p className="text-sm text-gray-600">
+          Нет аккаунта?{" "}
+          <Link href="/register" className="text-blue-600 hover:underline">
+            Зарегистрируйтесь
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

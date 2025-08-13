@@ -15,14 +15,25 @@ const Register = async (data) => {
 }
 
 const login = async (payload) => {
-  const response = await api.post(apiUrl + "login", payload, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  });
-  return response;
-};
+  try {
+    const response = await api.post(apiUrl + "login", payload, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    const { access_token, refresh_token, user } = response.data;
 
+    TokenService.updateLocalAccessToken(access_token);
+    TokenService.updateLocalRefreshToken(refresh_token);
+    localStorage.setItem("user_data", JSON.stringify(user));
+
+    return response;
+  } catch (error) {
+    toast.error("Ошибка при входе!");
+    console.error("Ошибка при входе:", error);
+    throw error;  // Пробрасываем ошибку, чтобы можно было обработать на фронте
+  }
+};
 
 const refreshToken = async () => {
   const refresh_token = TokenService.getLocalRefreshToken();
