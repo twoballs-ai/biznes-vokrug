@@ -92,7 +92,7 @@ export default function RootLayout({ children }) {
               k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
               (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
  
-              ym(99538507, "init", {
+              ym(103737916, "init", {
                     defer: true,
                     clickmap:true,
                     trackLinks:true,
